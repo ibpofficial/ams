@@ -1,0 +1,2641 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AM | Advanced Gaddar Index</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: { darkbg: '#050814', panelbg: '#0f1423' },
+                    animation: {
+                        'fade-in': 'fadeIn 0.3s ease-out',
+                        'slide-up': 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'pop-in': 'popIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+                        slideUp: { '0%': { opacity: '0', transform: 'translateY(15px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+                        popIn: { '0%': { opacity: '0', transform: 'scale(0.97)' }, '100%': { opacity: '1', transform: 'scale(1)' } }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@700&display=swap');
+        
+        body { font-family: 'Inter', sans-serif; overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        
+        /* Refined Glass Morphism */
+        .glass-panel { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border: 1px solid rgba(255, 255, 255, 0.8); box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04); }
+        .dark .glass-panel { background: rgba(15, 20, 35, 0.85); border: 1px solid rgba(255, 255, 255, 0.06); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5); }
+
+        .bg-ambient-glow { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; overflow: hidden; pointer-events: none; transition: opacity 0.5s ease;}
+        .bg-ambient-glow::before { content: ''; position: absolute; top: -10%; left: -10%; width: 50vw; height: 50vw; background: radial-gradient(circle, rgba(99, 102, 241, 0.12) 0%, transparent 60%); filter: blur(80px); }
+        .bg-ambient-glow::after { content: ''; position: absolute; bottom: -10%; right: -10%; width: 60vw; height: 60vw; background: radial-gradient(circle, rgba(168, 85, 247, 0.08) 0%, transparent 60%); filter: blur(80px); }
+        .dark .bg-ambient-glow::before { background: radial-gradient(circle, rgba(99, 102, 241, 0.08) 0%, transparent 60%); }
+        .dark .bg-ambient-glow::after { background: radial-gradient(circle, rgba(168, 85, 247, 0.05) 0%, transparent 60%); }
+
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.4); border-radius: 10px; }
+        .dark ::-webkit-scrollbar-thumb { background: rgba(99, 102, 241, 0.3); }
+        
+        .toast-enter { animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .toast-exit { animation: fadeOut 0.2s ease-in forwards; }
+        @keyframes slideIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes fadeOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(20px); } }
+        
+        .disabled-card { opacity: 0.6; filter: grayscale(80%); cursor: not-allowed; transform: scale(0.98); pointer-events: none;}
+        
+        select { -webkit-appearance: none; -moz-appearance: none; appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1em; }
+
+        .tab-active { border-bottom-color: #6366f1; color: #6366f1; background: rgba(99, 102, 241, 0.08); }
+        .dark .tab-active { color: #818cf8; background: rgba(99, 102, 241, 0.15); }
+        .tab-inactive { border-bottom-color: transparent; color: #64748b; }
+        .tab-inactive:hover { color: #334155; background: rgba(0,0,0,0.02); }
+        .dark .tab-inactive:hover { color: #cbd5e1; background: rgba(255,255,255,0.02); }
+
+        .achievement-locked { filter: grayscale(100%); opacity: 0.5; }
+        .achievement-unlocked { filter: grayscale(0%); opacity: 1; transform: scale(1.05); }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col bg-slate-50 dark:bg-darkbg text-slate-900 dark:text-slate-100 transition-colors duration-300 selection:bg-indigo-500/30 selection:text-indigo-900 dark:selection:text-indigo-200">
+
+    <div class="bg-ambient-glow"></div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="fixed inset-0 bg-white/95 dark:bg-[#050814]/95 backdrop-blur-xl z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-panel p-6 sm:p-8 rounded-[2rem] w-full max-w-sm text-center animate-pop-in relative overflow-hidden" id="loginContainer">
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-500"></div>
+            
+            <div id="loginStep1">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 mb-5 shadow-lg shadow-indigo-500/30 rotate-3">
+                    <i data-lucide="fingerprint" class="w-8 h-8 text-white -rotate-3"></i>
+                </div>
+                <h1 class="text-2xl sm:text-3xl font-black mb-1 tracking-tight text-slate-900 dark:text-white">SQUAD TERMINAL</h1>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mb-6 font-medium">Authenticate to access the index</p>
+                <div id="loginMembersList" class="flex flex-col gap-2.5 max-h-[50vh] overflow-y-auto hide-scrollbar"></div>
+            </div>
+            <div id="loginStep2" class="hidden">
+                <div class="mb-6">
+                    <button onclick="backToLoginStep1()" class="text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 flex items-center gap-1 text-xs font-bold mx-auto mb-5 transition-colors bg-slate-100 dark:bg-slate-800/50 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-700/50"><i data-lucide="arrow-left" class="w-3.5 h-3.5"></i> Switch Profile</button>
+                    <div class="w-20 h-20 mx-auto rounded-full bg-slate-50 dark:bg-slate-900 flex items-center justify-center border border-indigo-200 dark:border-indigo-500/50 mb-3 shadow-md relative">
+                        <div class="absolute inset-0 rounded-full border-2 border-indigo-500 border-t-transparent animate-spin opacity-40"></div>
+                        <i data-lucide="lock-keyhole" class="w-8 h-8 text-indigo-500 dark:text-indigo-400"></i>
+                    </div>
+                    <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight" id="loginAttemptName">Name</h2>
+                </div>
+                
+                <div class="relative w-full mb-5">
+                    <input type="password" id="loginPasswordInput" class="w-full bg-white dark:bg-darkbg text-center text-xl sm:text-2xl font-mono tracking-[0.4em] text-slate-900 dark:text-white p-4 pr-12 rounded-xl border border-slate-200 dark:border-slate-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none shadow-inner transition-all placeholder:tracking-normal placeholder:text-slate-400 dark:placeholder:text-slate-600 placeholder:text-sm placeholder:font-sans" placeholder="Enter PIN" maxlength="30">
+                    <button onclick="togglePass('loginPasswordInput', 'loginEyeIcon')" class="absolute right-4 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
+                        <i id="loginEyeIcon" data-lucide="eye" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <button id="loginSubmitBtn" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 text-white font-black py-3.5 rounded-xl transition-all shadow-md uppercase tracking-widest text-xs">Authorize</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App Content -->
+    <div id="appContent" class="hidden flex-col h-full animate-fade-in">
+        <!-- Header -->
+        <header class="glass-panel sticky top-0 z-30 px-4 py-3 sm:py-4 border-b shadow-sm">
+            <div class="max-w-6xl mx-auto flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-md">
+                        <i data-lucide="swords" class="w-4 h-4 sm:w-5 sm:h-5 text-white"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-lg sm:text-xl font-black tracking-tight leading-none text-slate-900 dark:text-white">A>>>M>>>><span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-500">SQUAD</span></h1>
+                        <p id="headerWelcome" class="text-[10px] sm:text-xs font-medium text-slate-500 mt-0.5">Terminal Active</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 sm:gap-4">
+
+                    <!-- Shields Header Stat -->
+                    <div class="hidden sm:flex items-center gap-3 mr-2 px-3 py-1.5 bg-slate-100 dark:bg-slate-800/80 rounded-lg border border-slate-200 dark:border-slate-700/50">
+                        <div class="flex items-center gap-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                            <i data-lucide="shield" class="w-4 h-4"></i> <span id="headerShields">0</span>
+                        </div>
+                    </div>
+
+                    <button id="btnAdminPortal" onclick="openAdminPanel()" class="hidden items-center gap-1.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest shadow-md transition-all">
+                        <i data-lucide="crown" class="w-3.5 h-3.5"></i> <span class="hidden sm:inline">Admin</span>
+                    </button>
+
+                    <div class="text-right hidden md:block bg-slate-100 dark:bg-slate-800/50 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700/50">
+                        <p class="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Gaddar Index</p>
+                        <p id="headerGaddar" class="text-lg font-black leading-none text-slate-800 dark:text-slate-200">0%</p>
+                    </div>
+                    
+                    <div class="flex gap-1.5">
+                        <button onclick="openRulesModal()" class="p-2.5 bg-blue-100 dark:bg-blue-900/40 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-800 text-blue-600 dark:text-blue-400 transition-colors border border-blue-200 dark:border-blue-700/50" title="Rules">
+                            <span class="font-black font-mono text-sm leading-none px-1">?</span>
+                        </button>
+                        <button onclick="toggleTheme()" class="p-2.5 bg-slate-100 dark:bg-slate-800/80 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 transition-colors border border-slate-200 dark:border-slate-700/50">
+                            <i data-lucide="sun" class="w-4 h-4 hidden dark:block"></i>
+                            <i data-lucide="moon" class="w-4 h-4 block dark:hidden"></i>
+                        </button>
+                        <button onclick="logout()" class="p-2.5 bg-slate-100 dark:bg-slate-800/80 rounded-lg hover:bg-rose-100 hover:text-rose-600 dark:hover:bg-rose-500/20 dark:hover:text-rose-400 text-slate-600 dark:text-slate-400 transition-colors border border-slate-200 dark:border-slate-700/50">
+                            <i data-lucide="power" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6">
+            <div class="max-w-6xl mx-auto space-y-6 pb-20">
+
+                <!-- Arsenal Section -->
+                <section class="animate-slide-up" style="animation-delay: 0.1s;">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-2">
+                            <div class="h-6 w-1.5 bg-indigo-500 rounded-full"></div>
+                            <h2 class="text-xl font-black tracking-tight text-slate-900 dark:text-white">Arsenal & Armory</h2>
+                        </div>
+                        <div class="flex items-center gap-2 sm:hidden text-xs font-bold text-slate-600 dark:text-slate-300">
+                            <span class="flex items-center gap-1 text-emerald-500"><i data-lucide="shield" class="w-3.5 h-3.5"></i> <span id="mobileShields">0</span></span>
+                        </div>
+                    </div>
+                    
+                    <div id="gaddarLockoutNotice" class="hidden bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-500/40 p-4 rounded-xl mb-5 shadow-sm relative overflow-hidden">
+                        <div class="absolute top-0 left-0 w-1.5 h-full bg-rose-500"></div>
+                        <div class="flex items-center gap-3 pl-2">
+                            <div class="p-2.5 bg-rose-100 dark:bg-rose-500/20 rounded-full text-rose-600 dark:text-rose-400"><i data-lucide="shield-ban" class="w-5 h-5"></i></div>
+                            <div>
+                                <h3 class="text-rose-700 dark:text-rose-300 font-bold text-sm tracking-wide" id="lockoutTitle">ARSENAL LOCKED</h3>
+                                <p class="text-rose-600 dark:text-rose-200/70 text-xs mt-0.5" id="lockoutDesc">Your Gaddar Index exceeds 70%. Privileges revoked.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="cardsContainer" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <!-- Black Market / Armory -->
+                        <div class="glass-panel p-5 rounded-2xl relative overflow-hidden group border-indigo-200 dark:border-indigo-500/30 bg-gradient-to-br from-indigo-50 to-transparent dark:from-indigo-950/40 shadow-sm flex flex-col">
+                            <div class="absolute -right-6 -top-6 text-indigo-500/10 group-hover:scale-110 transition-all duration-500"><i data-lucide="shield" class="w-32 h-32"></i></div>
+                            <div class="relative z-10 flex-1 flex flex-col">
+                                <div class="flex justify-between items-start">
+                                    <div class="w-10 h-10 bg-white dark:bg-indigo-500/10 rounded-xl flex items-center justify-center mb-3 border border-indigo-100 shadow-sm"><i data-lucide="shield" class="w-5 h-5 text-indigo-600 dark:text-indigo-400"></i></div>
+                                    <span class="text-[8px] bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-400 px-1.5 py-0.5 rounded font-bold uppercase">Mon-Wed Only</span>
+                                </div>
+                                <h3 class="text-xl font-black text-indigo-700 dark:text-indigo-400 mb-0.5">Defense Shield</h3>
+                                <p class="text-[10px] font-medium text-slate-500 mb-4 flex-1 leading-snug">Blocks 1 Gaddari Penalty automatically. Undo within 30s.</p>
+                                <div class="flex gap-2">
+                                    <button onclick="buyDefenseShield()" class="flex-[2] bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 rounded-lg text-[9px] uppercase tracking-widest shadow-md transition-colors flex items-center justify-center gap-1.5"><i data-lucide="shopping-cart" class="w-3.5 h-3.5"></i> Buy (1 Satvik)</button>
+                                    <button onclick="sellDefenseShield()" class="flex-[1] bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold py-2 rounded-lg text-[9px] uppercase tracking-widest shadow-sm transition-colors flex items-center justify-center" title="Undo Purchase (Must be within 30s)"><i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i></button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Cards -->
+                        <div class="glass-panel p-5 rounded-2xl relative overflow-hidden group cursor-pointer border-emerald-200 dark:border-emerald-500/20 bg-gradient-to-br from-emerald-50 to-transparent dark:from-emerald-950/30 hover:-translate-y-1 transition-all duration-300" onclick="openAmModal('satvik')">
+                            <div class="absolute -right-6 -top-6 text-emerald-500/10 group-hover:scale-110 transition-all duration-500"><i data-lucide="leaf" class="w-32 h-32"></i></div>
+                            <div class="relative z-10">
+                                <div class="w-10 h-10 bg-white dark:bg-emerald-500/10 rounded-xl flex items-center justify-center mb-3 border border-emerald-100 shadow-sm"><i data-lucide="leaf" class="w-5 h-5 text-emerald-600 dark:text-emerald-400"></i></div>
+                                <h3 class="text-xl font-black text-emerald-700 dark:text-emerald-400 mb-0.5">Satvik</h3>
+                                <p class="text-[11px] font-medium text-slate-500 mb-5 h-8">Standard protocol. Requires 3 squad approvals.</p>
+                                <div class="flex justify-between items-end border-t border-emerald-100 dark:border-emerald-500/10 pt-3">
+                                    <div class="flex items-baseline gap-1"><span class="text-3xl font-black text-slate-800 dark:text-white leading-none" id="countSatvik">0</span><span class="text-slate-400 font-bold text-[10px] uppercase">in stock</span></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="glass-panel p-5 rounded-2xl relative overflow-hidden group cursor-pointer border-amber-200 dark:border-amber-500/20 bg-gradient-to-br from-amber-50 to-transparent dark:from-amber-950/30 hover:-translate-y-1 transition-all duration-300" onclick="openAmModal('lahsun')">
+                            <div class="absolute -right-6 -top-6 text-amber-500/10 group-hover:scale-110 transition-all duration-500"><i data-lucide="flame" class="w-32 h-32"></i></div>
+                            <div class="relative z-10">
+                                <div class="w-10 h-10 bg-white dark:bg-amber-500/10 rounded-xl flex items-center justify-center mb-3 border border-amber-100 shadow-sm"><i data-lucide="flame" class="w-5 h-5 text-amber-600 dark:text-amber-400"></i></div>
+                                <h3 class="text-xl font-black text-amber-700 dark:text-amber-400 mb-0.5">Lahsun Pyaaj</h3>
+                                <p class="text-[11px] font-medium text-slate-500 mb-5 h-8">Requires 3 squad approvals.</p>
+                                <div class="flex justify-between items-end border-t border-amber-100 dark:border-amber-500/10 pt-3">
+                                    <div class="flex items-baseline gap-1"><span class="text-3xl font-black text-slate-800 dark:text-white leading-none" id="countLahsun">0</span><span class="text-slate-400 font-bold text-[10px] uppercase">in stock</span></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="glass-panel p-5 rounded-2xl relative overflow-hidden group cursor-pointer border-rose-200 dark:border-rose-500/20 bg-gradient-to-br from-rose-50 to-transparent dark:from-rose-950/30 hover:-translate-y-1 transition-all duration-300" onclick="openAmModal('nonveg')">
+                            <div class="absolute -right-6 -top-6 text-rose-500/10 group-hover:scale-110 transition-all duration-500"><i data-lucide="skull" class="w-32 h-32"></i></div>
+                            <div class="relative z-10">
+                                <div class="w-10 h-10 bg-white dark:bg-rose-500/10 rounded-xl flex items-center justify-center mb-3 border border-rose-100 shadow-sm"><i data-lucide="skull" class="w-5 h-5 text-rose-600 dark:text-rose-400"></i></div>
+                                <h3 class="text-xl font-black text-rose-700 dark:text-rose-400 mb-0.5">Non-Veg</h3>
+                                <p class="text-[11px] font-medium text-slate-500 mb-5 h-8">Ultimate destructive power. Very rare.</p>
+                                <div class="flex justify-between items-end border-t border-rose-100 dark:border-rose-500/10 pt-3">
+                                    <div class="flex items-baseline gap-1"><span class="text-3xl font-black text-slate-800 dark:text-white leading-none" id="countNonveg">0</span><span class="text-slate-400 font-bold text-[10px] uppercase">in stock</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 animate-slide-up" style="animation-delay: 0.2s;">
+                    
+                    <!-- Left Column: Tribunal & Gaddar Vote -->
+                    <div class="lg:col-span-5 space-y-6 flex flex-col">
+                        
+                        <!-- Daily Gaddari Vote -->
+                        <section class="glass-panel p-5 sm:p-6 rounded-2xl relative overflow-hidden border-rose-200 dark:border-rose-500/20 shrink-0">
+                            <div class="absolute top-0 right-0 w-48 h-48 bg-rose-500/5 dark:bg-rose-500/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
+                            
+                            <div class="flex items-center justify-between mb-5 relative z-10">
+                                <div class="flex items-center gap-2">
+                                    <div class="p-2 bg-rose-100 dark:bg-rose-500/10 rounded-lg text-rose-600 dark:text-rose-400"><i data-lucide="crosshair" class="w-5 h-5"></i></div>
+                                    <div>
+                                        <h2 class="text-lg font-black text-slate-900 dark:text-white tracking-tight">Daily Judgment</h2>
+                                        <p class="text-[10px] font-medium text-slate-500 uppercase">Penalty: +10% (Req: 3 Votes)</p>
+                                    </div>
+                                </div>
+                                <div class="text-right" id="streakContainer">
+                                    <div class="flex items-center gap-1 justify-end text-amber-500"><i data-lucide="flame" class="w-4 h-4"></i> <span id="currentStreak" class="font-black text-lg leading-none">0</span></div>
+                                    <p class="text-[8px] font-bold text-slate-500 uppercase">Day Streak</p>
+                                </div>
+                            </div>
+
+                            <div id="gaddariVotingSection" class="relative z-10">
+                                <div class="flex items-center justify-between bg-slate-50 dark:bg-black/40 rounded-lg p-2.5 mb-4 border border-slate-200 dark:border-slate-800">
+                                    <span class="text-[10px] font-bold text-slate-500 uppercase flex items-center gap-1.5"><i data-lucide="timer" class="w-3.5 h-3.5 text-indigo-500"></i> Cycle Ends</span>
+                                    <span id="dailyCountdown" class="text-sm font-mono font-bold text-indigo-600 dark:text-indigo-300">--:--:--</span>
+                                </div>
+
+                                <div id="gaddariFormContainer">
+                                    <div class="space-y-3">
+                                        <div class="relative">
+                                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><i data-lucide="target" class="w-4 h-4 text-slate-400"></i></div>
+                                            <select id="gaddarTarget" class="w-full bg-white dark:bg-darkbg text-slate-800 dark:text-slate-200 pl-9 pr-8 py-3 rounded-lg border border-slate-300 dark:border-slate-700 focus:border-rose-500 outline-none text-sm shadow-sm cursor-pointer">
+                                                <option value="none">🕊️ No One (Maintain Peace)</option>
+                                            </select>
+                                        </div>
+                                        <div id="gaddarReasonDiv" class="hidden transition-all duration-300">
+                                            <textarea id="gaddarReason" rows="2" class="w-full bg-white dark:bg-darkbg text-slate-800 dark:text-slate-200 p-3 rounded-lg border border-slate-300 dark:border-slate-700 focus:border-rose-500 outline-none resize-none shadow-sm text-xs placeholder:text-slate-400" placeholder="Required: Provide detailed evidence..."></textarea>
+                                        </div>
+                                        <button onclick="submitGaddariVote()" id="castJudgmentBtn" class="w-full bg-slate-800 dark:bg-slate-800 hover:bg-slate-700 text-white font-black py-3 rounded-lg transition-all text-xs uppercase tracking-widest shadow-md">Maintain Peace</button>
+                                    </div>
+                                </div>
+
+                                <div id="gaddariVotedMessage" class="hidden text-center py-6 bg-emerald-50 dark:bg-emerald-950/20 rounded-xl border border-emerald-200 dark:border-emerald-500/20">
+                                    <div class="inline-flex items-center justify-center w-12 h-12 bg-white dark:bg-emerald-500/10 rounded-full mb-2 border border-emerald-100 dark:border-emerald-500/30 text-emerald-500 shadow-sm"><i data-lucide="check-check" class="w-6 h-6"></i></div>
+                                    <h3 class="text-sm font-bold text-slate-800 dark:text-white tracking-wide">Judgment Recorded</h3>
+                                    <p class="text-slate-500 text-[10px] mt-1">Awaiting next cycle reset.</p>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Tribunal: Unified Authorization Center -->
+                        <section class="glass-panel p-5 sm:p-6 rounded-2xl border-indigo-200 dark:border-indigo-500/20 relative flex-1 flex flex-col">
+                            <div class="flex items-center justify-between mb-4 shrink-0">
+                                <div class="flex items-center gap-2">
+                                    <div class="p-2 bg-indigo-100 dark:bg-indigo-500/10 rounded-lg text-indigo-600 dark:text-indigo-400"><i data-lucide="gavel" class="w-5 h-5"></i></div>
+                                    <div>
+                                        <h2 class="text-lg font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">The Tribunal <span id="tribunalBadgeCount" class="hidden bg-rose-500 text-white text-[9px] px-1.5 py-0.5 rounded-full animate-pulse shadow-md">!</span></h2>
+                                        <p class="text-[10px] font-medium text-slate-500 uppercase">Awaiting Squad Consensus</p>
+                                    </div>
+                                </div>
+                                <button onclick="openAnalyticsModal()" class="text-[10px] bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 px-2.5 py-1.5 rounded-lg font-bold uppercase transition-colors flex items-center gap-1"><i data-lucide="library" class="w-3 h-3"></i> Archive</button>
+                            </div>
+
+                            <div class="space-y-5 flex-1 overflow-y-auto pr-2 hide-scrollbar">
+                                <div id="pendingAppealsSection" class="hidden">
+                                    <h3 class="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-widest mb-2 border-b border-amber-200 dark:border-amber-500/30 pb-1">Appeals to Review</h3>
+                                    <div id="appealsContainer" class="space-y-2"></div>
+                                </div>
+
+                                <div class="flex-1 flex flex-col">
+                                    <div class="flex justify-between items-center border-b border-indigo-200 dark:border-indigo-500/30 pb-1 mb-2">
+                                        <h3 class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">Pending Cases</h3>
+                                    </div>
+                                    <div id="pendingVotesContainer" class="space-y-2.5 flex-1"></div>
+                                </div>
+                            </div>
+                        </section>
+
+                    </div>
+
+                    <!-- Right Column: Roster & Feed -->
+                    <div class="lg:col-span-7 h-full flex flex-col gap-6">
+
+                        <!-- SQUAD SOCIAL FEED -->
+                        <section class="glass-panel p-4 sm:p-5 rounded-2xl border-blue-200 dark:border-blue-500/30 bg-blue-50/50 dark:bg-blue-900/10 flex flex-col h-80 shrink-0">
+                            <div class="flex items-center justify-between mb-3 border-b border-blue-200 dark:border-blue-500/20 pb-2 shrink-0">
+                                <div class="flex items-center gap-2">
+                                    <i data-lucide="message-square" class="w-4 h-4 text-blue-600 dark:text-blue-400"></i>
+                                    <h2 class="text-sm font-black tracking-tight text-blue-800 dark:text-blue-300 uppercase">Squad Feed</h2>
+                                </div>
+                            </div>
+                            
+                            <!-- Feed Area -->
+                            <div id="socialFeedContainer" class="flex-1 overflow-y-auto space-y-3 pr-2 hide-scrollbar">
+                                <!-- Populated via JS -->
+                            </div>
+
+                            <!-- Post Input -->
+                            <div class="mt-3 flex gap-2 relative shrink-0">
+                                <input type="text" id="feedInput" placeholder="What's on your mind?..." class="flex-1 bg-white dark:bg-darkbg text-slate-800 dark:text-slate-200 text-xs px-3 py-3 rounded-xl border border-blue-200 dark:border-blue-500/30 focus:border-blue-500 outline-none shadow-sm" maxlength="200">
+                                <button onclick="postToFeed()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-xl text-xs font-bold uppercase tracking-wide transition-all shadow-md active:scale-95"><i data-lucide="send" class="w-4 h-4"></i></button>
+                            </div>
+                        </section>
+
+                        <!-- Scorecards -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 shrink-0" id="topScorecards">
+                            <div class="glass-panel p-3 sm:p-4 rounded-xl border-t-2 border-rose-500 bg-rose-50 dark:bg-gradient-to-b dark:from-rose-950/20 dark:to-transparent flex flex-col shadow-sm">
+                                <div class="text-center mb-2">
+                                    <i data-lucide="alert-triangle" class="w-4 h-4 text-rose-500 mx-auto mb-1 opacity-80"></i>
+                                    <p class="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Chief Gaddars</p>
+                                </div>
+                                <div id="leaderboardGaddar" class="space-y-1 text-xs font-bold text-rose-700 dark:text-rose-400 mt-auto"></div>
+                            </div>
+                            <div class="glass-panel p-3 sm:p-4 rounded-xl border-t-2 border-emerald-500 bg-emerald-50 dark:bg-gradient-to-b dark:from-emerald-950/20 dark:to-transparent flex flex-col shadow-sm">
+                                <div class="text-center mb-2">
+                                    <i data-lucide="dove" class="w-4 h-4 text-emerald-500 mx-auto mb-1 opacity-80"></i>
+                                    <p class="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Peacekeepers</p>
+                                </div>
+                                <div id="leaderboardPeace" class="space-y-1 text-xs font-bold text-emerald-700 dark:text-emerald-400 mt-auto"></div>
+                            </div>
+                            <div class="glass-panel p-3 sm:p-4 rounded-xl border-t-2 border-amber-500 bg-amber-50 dark:bg-gradient-to-b dark:from-amber-950/20 dark:to-transparent flex flex-col shadow-sm">
+                                <div class="text-center mb-2">
+                                    <i data-lucide="swords" class="w-4 h-4 text-amber-500 mx-auto mb-1 opacity-80"></i>
+                                    <p class="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Most Armed</p>
+                                </div>
+                                <div id="leaderboardArmed" class="space-y-1 text-xs font-bold text-amber-700 dark:text-amber-400 mt-auto"></div>
+                            </div>
+                        </div>
+
+                        <!-- Roster -->
+                        <section class="glass-panel p-5 sm:p-6 rounded-2xl flex-1 flex flex-col">
+                            <div class="flex items-center gap-2 mb-4 shrink-0">
+                                <div class="p-2 bg-slate-100 dark:bg-slate-800/80 rounded-lg text-slate-600 dark:text-slate-300"><i data-lucide="users" class="w-5 h-5"></i></div>
+                                <div>
+                                    <h2 class="text-lg font-black text-slate-900 dark:text-white tracking-tight">Squad Roster</h2>
+                                    <p class="text-[9px] text-slate-500 uppercase font-semibold tracking-wider">Select member to view intel & achievements</p>
+                                </div>
+                            </div>
+
+                            <div class="bg-white dark:bg-panelbg rounded-xl border border-slate-200 dark:border-slate-800/80 overflow-hidden shadow-sm flex-1 flex flex-col">
+                                <div class="flex items-center justify-between px-4 py-3 border-b border-slate-200 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-900/60 text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest shrink-0">
+                                    <span>Operative</span>
+                                    <div class="flex items-center gap-4 sm:gap-6">
+                                        <span class="w-12 text-right">Gaddar</span>
+                                    </div>
+                                </div>
+                                <div id="squadList" class="divide-y divide-slate-100 dark:divide-slate-800/40 overflow-y-auto flex-1"></div>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- RULES MODAL -->
+    <div id="rulesModal" class="fixed inset-0 bg-slate-900/80 dark:bg-black/90 backdrop-blur-xl z-[80] hidden flex flex-col p-4 sm:p-8 items-center justify-center">
+        <div class="w-full max-w-2xl bg-white dark:bg-darkbg rounded-3xl border border-blue-200 dark:border-blue-500/30 overflow-hidden shadow-2xl relative animate-pop-in flex flex-col max-h-[90vh]">
+            <header class="p-5 sm:p-6 border-b border-blue-100 dark:border-blue-500/20 flex justify-between items-center bg-blue-50 dark:bg-blue-950/20 shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-white dark:bg-blue-500/20 rounded-xl flex items-center justify-center border border-blue-200 dark:border-blue-500/40 text-blue-500 shadow-sm"><i data-lucide="book-open" class="w-5 h-5"></i></div>
+                    <div>
+                        <h2 class="text-xl font-black text-blue-700 dark:text-blue-400 tracking-tight leading-none mb-1">Squad Protocols & Rules</h2>
+                        <p class="text-[10px] text-blue-500 font-bold uppercase tracking-widest">Official Rulebook</p>
+                    </div>
+                </div>
+                <button onclick="closeRulesModal()" class="p-2 bg-white dark:bg-slate-900 rounded-lg hover:bg-rose-100 dark:hover:bg-rose-500/20 text-slate-500 shadow-sm transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </header>
+            <div class="flex-1 overflow-y-auto p-5 sm:p-8 space-y-6 hide-scrollbar text-sm text-slate-700 dark:text-slate-300">
+                
+                <div class="bg-rose-50 dark:bg-rose-950/20 p-4 rounded-2xl border border-rose-100 dark:border-rose-900/50">
+                    <h3 class="font-black text-rose-700 dark:text-rose-400 mb-2 flex items-center gap-2"><i data-lucide="crosshair" class="w-4 h-4"></i> The Gaddar Index (Daily Judgment)</h3>
+                    <ul class="list-disc pl-5 space-y-1.5 marker:text-rose-400">
+                        <li>Every member can vote daily to accuse someone of being a "Gaddar" (Traitor).</li>
+                        <li>An accusation requires exactly <strong>3 Squad Approvals</strong> to be confirmed.</li>
+                        <li><strong>MANDATORY PROOF:</strong> You cannot approve an accusation without typing a detailed reason/proof in the Tribunal.</li>
+                        <li>Once confirmed, the target suffers a <strong>+10% penalty</strong> to their Gaddar Index.</li>
+                        <li>If a member's Gaddari Index exceeds <strong>70%</strong>, their voting and weapon privileges are immediately revoked until they appeal and clear their name.</li>
+                    </ul>
+                </div>
+
+                <div class="bg-emerald-50 dark:bg-emerald-950/20 p-4 rounded-2xl border border-emerald-100 dark:border-emerald-900/50">
+                    <h3 class="font-black text-emerald-700 dark:text-emerald-400 mb-2 flex items-center gap-2"><i data-lucide="leaf" class="w-4 h-4"></i> Andi Mandi Cards (Tribunal Requests)</h3>
+                    <ul class="list-disc pl-5 space-y-1.5 marker:text-emerald-400">
+                        <li>Requests to use a <strong>Satvik</strong>, <strong>Lahsun</strong>, or <strong>Non-Veg</strong> card must pass through the Tribunal.</li>
+                        <li>All card usage requests require exactly <strong>3 Squad Approvals</strong> with mandatory written proof.</li>
+                        <li><strong>WEEKLY RESET:</strong> Every Monday, all players' Satvik cards are automatically renewed/reset to exactly 2.</li>
+                        <li><strong>INACTIVITY PENALTY:</strong> If you do not open your account for 3 continuous days, your Satvik cards will be wiped to 0 for the remainder of the week.</li>
+                    </ul>
+                </div>
+
+                <div class="bg-indigo-50 dark:bg-indigo-950/20 p-4 rounded-2xl border border-indigo-100 dark:border-indigo-900/50">
+                    <h3 class="font-black text-indigo-700 dark:text-indigo-400 mb-2 flex items-center gap-2"><i data-lucide="shield" class="w-4 h-4"></i> Defense Shields & Weapons Economy</h3>
+                    <ul class="list-disc pl-5 space-y-1.5 marker:text-indigo-400">
+                        <li>You must trade exactly <strong>1 Satvik Card</strong> to buy <strong>1 Defense Shield</strong>.</li>
+                        <li><strong>TIME LIMIT:</strong> Shields can ONLY be purchased on Monday, Tuesday, or Wednesday.</li>
+                        <li><strong>UNDO WINDOW:</strong> You can only "Undo" (sell) a shield to get your card back within 30 seconds of buying it.</li>
+                        <li>Shields automatically block 1 confirmed Gaddari penalty.</li>
+                    </ul>
+                </div>
+
+                <div class="bg-amber-50 dark:bg-amber-950/20 p-4 rounded-2xl border border-amber-100 dark:border-amber-900/50">
+                    <h3 class="font-black text-amber-700 dark:text-amber-400 mb-2 flex items-center gap-2"><i data-lucide="handshake" class="w-4 h-4"></i> Neta Alliances</h3>
+                    <ul class="list-disc pl-5 space-y-1.5 marker:text-amber-400">
+                        <li>You can propose a Neta Alliance with any other member.</li>
+                        <li>Allied members can easily transfer Satvik and Lahsun cards to each other to help out.</li>
+                        <li>To forcefully break an alliance early, a member must sacrifice exactly <strong>1 Non-Veg Card</strong>.</li>
+                    </ul>
+                </div>
+
+                <div class="bg-slate-100 dark:bg-slate-900/60 p-4 rounded-2xl border border-slate-200 dark:border-slate-800">
+                    <h3 class="font-black text-slate-800 dark:text-slate-200 mb-2 flex items-center gap-2"><i data-lucide="eye" class="w-4 h-4 text-indigo-500"></i> Tribunal Transparency & Overlords</h3>
+                    <ul class="list-disc pl-5 space-y-1.5 marker:text-slate-500">
+                        <li><strong>Full Transparency:</strong> All Tribunal cases now publicly display exactly who voted to approve/reject and what proof they provided.</li>
+                        <li><strong>Auto-Resolution:</strong> Any case left pending in the Tribunal for 48 hours is automatically resolved based on the current majority of votes.</li>
+                        <li>Overlords can edit any operative's inventory, force system announcements, and instantly wipe servers.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Panel Modal -->
+    <div id="adminModal" class="fixed inset-0 bg-white/95 dark:bg-black/95 backdrop-blur-xl z-[70] hidden flex flex-col p-2 sm:p-6">
+        <div class="w-full max-w-5xl mx-auto flex-1 flex flex-col bg-white dark:bg-darkbg rounded-2xl border border-amber-200 dark:border-amber-500/30 overflow-hidden shadow-2xl relative">
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-500 to-orange-500"></div>
+            <header class="p-4 sm:p-5 border-b border-amber-100 dark:border-amber-500/20 flex justify-between items-center bg-amber-50 dark:bg-amber-950/20">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-white dark:bg-amber-500/20 rounded-lg flex items-center justify-center border border-amber-200 dark:border-amber-500/40 text-amber-500"><i data-lucide="crown" class="w-5 h-5"></i></div>
+                    <div>
+                        <h2 class="text-xl font-black text-amber-600 dark:text-amber-400 tracking-tight">OVERLORD TERMINAL</h2>
+                    </div>
+                </div>
+                <button onclick="closeAdminPanel()" class="p-2 bg-slate-100 dark:bg-slate-900 rounded-lg hover:bg-rose-100 dark:hover:bg-rose-500/20 text-slate-500 transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </header>
+
+            <div class="flex-1 overflow-y-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Admin Tools -->
+                <div class="lg:col-span-5 space-y-4">
+                    
+                    <div class="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-200 dark:border-slate-800">
+                        <h3 class="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-widest mb-3 flex items-center gap-2"><i data-lucide="sliders" class="w-3.5 h-3.5 text-blue-500"></i> Operative Override</h3>
+                        
+                        <select id="adminTarget" class="w-full bg-white dark:bg-darkbg text-slate-800 dark:text-slate-200 p-2.5 rounded-lg border border-slate-300 dark:border-slate-700 text-xs mb-3 font-bold" onchange="loadAdminTargetStats()"></select>
+                        
+                        <div class="mb-3">
+                            <label class="text-[9px] text-slate-500 uppercase font-bold block mb-1">Operative Name</label>
+                            <input type="text" id="adminValName" class="w-full bg-white dark:bg-darkbg text-slate-800 dark:text-slate-200 p-2 rounded-lg border border-slate-300 dark:border-slate-700 text-xs outline-none">
+                        </div>
+
+                        <div class="grid grid-cols-3 gap-2 mb-2">
+                            <div>
+                                <label class="text-[9px] text-slate-500 uppercase font-bold block mb-1">Satvik</label>
+                                <input type="number" id="adminValSatvik" class="w-full bg-white dark:bg-darkbg text-slate-800 dark:text-slate-200 p-2 rounded-lg border border-slate-300 dark:border-slate-700 text-xs outline-none">
+                            </div>
+                            <div>
+                                <label class="text-[9px] text-slate-500 uppercase font-bold block mb-1">Lahsun</label>
+                                <input type="number" id="adminValLahsun" class="w-full bg-white dark:bg-darkbg text-slate-800 dark:text-slate-200 p-2 rounded-lg border border-slate-300 dark:border-slate-700 text-xs outline-none">
+                            </div>
+                            <div>
+                                <label class="text-[9px] text-slate-500 uppercase font-bold block mb-1">Non-Veg</label>
+                                <input type="number" id="adminValNonveg" class="w-full bg-white dark:bg-darkbg text-slate-800 dark:text-slate-200 p-2 rounded-lg border border-slate-300 dark:border-slate-700 text-xs outline-none">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 mb-3">
+                            <div>
+                                <label class="text-[9px] text-slate-500 uppercase font-bold block mb-1">Gaddari %</label>
+                                <input type="number" id="adminValGaddari" class="w-full bg-white dark:bg-darkbg text-slate-800 dark:text-slate-200 p-2 rounded-lg border border-slate-300 dark:border-slate-700 text-xs outline-none">
+                            </div>
+                            <div>
+                                <label class="text-[9px] text-slate-500 uppercase font-bold block mb-1">Shields</label>
+                                <input type="number" id="adminValShields" class="w-full bg-white dark:bg-darkbg text-slate-800 dark:text-slate-200 p-2 rounded-lg border border-slate-300 dark:border-slate-700 text-xs outline-none">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="text-[9px] text-slate-500 uppercase font-bold block mb-1">Force Update PIN</label>
+                            <input type="text" id="adminValPassword" placeholder="Leave blank to keep current" class="w-full bg-white dark:bg-darkbg text-slate-800 dark:text-slate-200 p-2 rounded-lg border border-slate-300 dark:border-slate-700 text-xs outline-none">
+                        </div>
+                        <div class="mb-4 flex items-center gap-2">
+                            <input type="checkbox" id="adminValIsAdmin" class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500">
+                            <label class="text-xs font-bold text-amber-600 dark:text-amber-500 cursor-pointer" for="adminValIsAdmin">Grant Overlord Powers</label>
+                        </div>
+
+                        <div class="flex gap-2 mb-4">
+                            <button onclick="adminClearAlliance()" class="flex-[1] bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 text-slate-700 dark:text-slate-300 font-bold py-2 rounded-lg transition-all text-[9px] uppercase">Break Alliance</button>
+                            <button onclick="adminZeroInventory()" class="flex-[2] bg-rose-200 dark:bg-rose-900/40 hover:bg-rose-300 text-rose-700 dark:text-rose-400 font-bold py-2 rounded-lg transition-all text-[9px] uppercase shadow-sm">Zero Inventory</button>
+                        </div>
+
+                        <button onclick="adminSaveTargetStats()" class="w-full bg-blue-100 dark:bg-blue-600/20 hover:bg-blue-200 dark:hover:bg-blue-600/40 text-blue-700 dark:text-blue-400 font-bold py-2.5 rounded-lg transition-all text-xs uppercase tracking-wide">Force Save Intel</button>
+                    </div>
+
+                    <div class="bg-indigo-50 dark:bg-indigo-950/20 p-4 rounded-xl border border-indigo-200 dark:border-indigo-900/50">
+                        <h3 class="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest mb-3 flex items-center gap-2"><i data-lucide="megaphone" class="w-3.5 h-3.5"></i> System Broadcast</h3>
+                        <textarea id="adminBroadcastText" rows="2" class="w-full bg-white dark:bg-darkbg text-slate-800 dark:text-slate-200 p-2 rounded-lg border border-slate-300 dark:border-slate-700 text-xs outline-none mb-2 shadow-sm" placeholder="Message will appear from SYSTEM..."></textarea>
+                        <button onclick="adminBroadcast()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-lg transition-all text-xs uppercase tracking-wide shadow-md">Broadcast to Feed</button>
+                    </div>
+
+                    <div class="bg-rose-50 dark:bg-rose-950/20 p-4 rounded-xl border border-rose-200 dark:border-rose-900/50">
+                        <h3 class="text-xs font-bold text-rose-600 dark:text-rose-500 uppercase tracking-widest mb-3 flex items-center gap-2"><i data-lucide="skull" class="w-3.5 h-3.5"></i> Danger Zone</h3>
+                        <button onclick="adminGlobalWipe()" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-black py-3 rounded-lg transition-all text-xs uppercase tracking-widest shadow-md">Execute System Wipe</button>
+                    </div>
+                </div>
+
+                <!-- Omniscience Logs -->
+                <div class="lg:col-span-7 flex flex-col h-[60vh] lg:h-[70vh]">
+                    <div class="bg-slate-50 dark:bg-slate-900/40 rounded-xl border border-slate-200 dark:border-slate-800 flex-1 flex flex-col overflow-hidden">
+                        <div class="p-3 border-b border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900/80 flex justify-between items-center">
+                            <h3 class="text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-widest flex items-center gap-1.5"><i data-lucide="eye" class="w-3.5 h-3.5"></i> God's Eye (Super Powers)</h3>
+                            <span class="text-[10px] text-slate-500 font-mono">Raw Feed</span>
+                        </div>
+                        <div class="flex-1 overflow-y-auto p-3 space-y-3" id="adminLogContainer"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Self-Use Andi Mandi Modal -->
+    <div id="amModal" class="fixed inset-0 bg-white/90 dark:bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-panel p-6 sm:p-8 rounded-2xl w-full max-w-sm animate-pop-in">
+            <div class="flex items-center gap-3 mb-5 pb-5 border-b border-slate-200 dark:border-slate-800">
+                <div id="amModalIconBg" class="p-3 rounded-xl"><i id="amModalIcon" data-lucide="zap" class="w-6 h-6"></i></div>
+                <div>
+                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-0.5">Auth Request</p>
+                    <h2 id="amModalTitle" class="text-xl font-black tracking-tight leading-none">Card</h2>
+                </div>
+            </div>
+            <textarea id="amReasonInput" rows="3" class="w-full bg-white dark:bg-darkbg text-slate-800 dark:text-slate-100 p-3 rounded-xl border border-slate-300 dark:border-slate-700 focus:border-indigo-500 outline-none transition-all resize-none shadow-sm mb-5 text-sm" placeholder="State justification..."></textarea>
+            <div class="flex gap-3">
+                <button onclick="closeAmModal()" class="flex-1 bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold py-3 rounded-xl text-sm transition-all">Cancel</button>
+                <button id="amSubmitBtn" class="flex-[2] bg-gradient-to-r from-indigo-600 to-blue-600 text-white font-black py-3 rounded-xl shadow-md transform active:scale-95 text-sm">Submit to Tribunal</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Public Profile Modal -->
+    <div id="profileModal" class="fixed inset-0 bg-white/95 dark:bg-black/90 backdrop-blur-md z-50 hidden flex items-center justify-center p-2 sm:p-4">
+        <div class="glass-panel w-full max-w-2xl animate-pop-in flex flex-col h-[90vh] sm:h-[80vh] rounded-2xl relative overflow-hidden bg-white dark:bg-panelbg">
+            <button onclick="closeProfileModal()" class="absolute top-4 right-4 p-2 bg-slate-100 dark:bg-slate-800/80 rounded-full text-slate-500 hover:text-rose-500 z-20 transition-colors"><i data-lucide="x" class="w-4 h-4"></i></button>
+            
+            <!-- Standard View -->
+            <div id="profileNormalView" class="flex flex-col h-full">
+                <div class="p-5 sm:p-6 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 relative" id="profileHeaderBg">
+                    <div class="absolute top-0 right-0 w-48 h-48 bg-indigo-500/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none" id="profileGlow"></div>
+                    
+                    <button id="btnEditProfile" onclick="toggleEditProfile()" class="hidden absolute top-4 right-14 p-2 bg-indigo-100 dark:bg-indigo-500/20 rounded-lg text-indigo-600 dark:text-indigo-400 hover:bg-indigo-200 z-20 text-[10px] font-bold uppercase tracking-widest flex items-center gap-1 transition-colors"><i data-lucide="pencil" class="w-3 h-3"></i> Edit</button>
+
+                    <div class="flex items-center gap-4 relative z-10">
+                        <div class="w-16 h-16 rounded-full flex items-center justify-center shadow-md overflow-hidden bg-slate-200 dark:bg-slate-800 shrink-0" id="profileAvatarContainer">
+                            <i data-lucide="user" class="w-8 h-8 text-slate-500" id="profileAvatarIcon"></i>
+                        </div>
+                        <div>
+                            <h2 id="profileModalName" class="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-white mb-1.5 flex items-center gap-2">Name</h2>
+                            <div class="flex flex-wrap gap-1.5 text-[9px] font-bold uppercase tracking-widest mb-1.5">
+                                <span id="profileModalGaddar" class="px-2 py-1 rounded border">0% Gaddar</span>
+                                <span id="profileModalAdminBadge" class="hidden text-amber-600 dark:text-amber-400 bg-amber-100 dark:bg-amber-500/10 px-2 py-1 rounded border border-amber-300 dark:border-amber-500/30"><i data-lucide="crown" class="inline w-2.5 h-2.5 mr-1"></i>Overlord</span>
+                                <span class="px-2 py-1 rounded border border-indigo-200 dark:border-indigo-500/30 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400"><i data-lucide="flame" class="inline w-2.5 h-2.5 mr-1"></i><span id="profileModalStreak">0</span> Day Streak</span>
+                            </div>
+                            <div class="flex items-center gap-3 text-[10px] text-slate-500 dark:text-slate-400 font-medium">
+                                <span class="flex items-center gap-1"><i data-lucide="map-pin" class="w-3 h-3"></i> <span id="profileLocation">Unknown</span></span>
+                                <span class="flex items-center gap-1"><i data-lucide="link" class="w-3 h-3 text-indigo-500"></i> <span id="profileAlliance">No Alliance</span></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Achievements Box -->
+                    <div class="mt-4 flex gap-2 overflow-x-auto hide-scrollbar pb-1">
+                        <div id="ach_trusted" class="achievement-locked flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 shrink-0 transition-all duration-300" title="Maintain 0% Gaddari for 7 consecutive days of voting">
+                            <i data-lucide="shield-check" class="w-4 h-4 text-emerald-500"></i> <span class="text-[10px] font-bold text-slate-700 dark:text-slate-300">Trusted Operative</span>
+                        </div>
+                        <div id="ach_weaponsMaster" class="achievement-locked flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 shrink-0 transition-all duration-300" title="Purchased at least 1 Defense Shield">
+                            <i data-lucide="swords" class="w-4 h-4 text-indigo-500"></i> <span class="text-[10px] font-bold text-slate-700 dark:text-slate-300">Weapons Master</span>
+                        </div>
+                        <div id="ach_diplomat" class="achievement-locked flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 shrink-0 transition-all duration-300" title="Formed a Neta Alliance">
+                            <i data-lucide="handshake" class="w-4 h-4 text-amber-500"></i> <span class="text-[10px] font-bold text-slate-700 dark:text-slate-300">Diplomat</span>
+                        </div>
+                        <div id="ach_merciful" class="achievement-locked flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 shrink-0 transition-all duration-300" title="Forgave an appeal request">
+                            <i data-lucide="heart-handshake" class="w-4 h-4 text-rose-500"></i> <span class="text-[10px] font-bold text-slate-700 dark:text-slate-300">Merciful</span>
+                        </div>
+                    </div>
+
+                    <!-- Interactions/Alliance Section -->
+                    <div id="bribeSection" class="hidden mt-4 relative z-10 pt-4 border-t border-slate-200 dark:border-slate-700/50">
+                        <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 flex items-center gap-1.5"><i data-lucide="handshake" class="w-3.5 h-3.5"></i> Squad Interactions & Alliances</p>
+                        <div id="bribeButtons" class="flex flex-wrap gap-2">
+                            <!-- Populated dynamically via JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabs -->
+                <div class="flex border-b border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900/20 px-4 pt-1.5 shrink-0">
+                    <button onclick="switchProfileTab('gaddari')" id="tabBtnGaddari" class="px-4 py-2.5 font-bold text-xs tracking-wide border-b-2 transition-all tab-active flex items-center gap-1.5"><i data-lucide="shield-alert" class="w-3.5 h-3.5"></i> Gaddari Profile</button>
+                    <button onclick="switchProfileTab('arsenal')" id="tabBtnArsenal" class="px-4 py-2.5 font-bold text-xs tracking-wide border-b-2 transition-all tab-inactive flex items-center gap-1.5"><i data-lucide="history" class="w-3.5 h-3.5"></i> Arsenal Record</button>
+                </div>
+                
+                <div class="flex-1 overflow-y-auto p-4 sm:p-6 hide-scrollbar">
+                    <div id="tabContentGaddari" class="space-y-4">
+                        <div class="bg-indigo-50 dark:bg-indigo-950/20 border border-indigo-200 dark:border-indigo-500/30 p-3 rounded-lg mb-4 hidden" id="appealHintBox">
+                            <p class="text-[10px] text-indigo-700 dark:text-indigo-300 font-medium"><i data-lucide="info" class="w-3 h-3 inline"></i> <b>Hint:</b> Tap "Appeal Charge" below. If your accuser accepts, your Gaddari Index will be completely restored (-10%).</p>
+                        </div>
+                        <div id="profileGaddariList" class="space-y-3"></div>
+                    </div>
+
+                    <div id="tabContentArsenal" class="hidden space-y-5">
+                        <div id="profileReportSection" class="bg-indigo-50 dark:bg-indigo-950/20 border border-indigo-200 dark:border-indigo-500/30 p-4 rounded-xl relative overflow-hidden">
+                            <h3 class="text-xs font-bold text-indigo-700 dark:text-indigo-300 mb-2 flex items-center gap-1.5"><i data-lucide="megaphone" class="w-3.5 h-3.5"></i> Accuse Unauthorized Usage</h3>
+                            <div class="space-y-2.5 mt-3">
+                                <select id="reportCardType" class="w-full bg-white dark:bg-darkbg text-slate-800 dark:text-slate-200 p-2.5 rounded-lg border border-slate-300 dark:border-slate-700 text-xs shadow-sm"></select>
+                                <input type="text" id="reportReason" class="w-full bg-white dark:bg-darkbg text-slate-800 dark:text-slate-200 p-2.5 rounded-lg border border-slate-300 dark:border-slate-700 text-xs shadow-sm" placeholder="Evidence...">
+                                <button id="reportSubmitBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 transition-colors text-white font-bold py-2.5 rounded-lg shadow-md text-xs tracking-wide mt-1">Submit to Tribunal</button>
+                            </div>
+                        </div>
+                        <div id="profileHistoryList" class="space-y-2.5"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Edit View (WITH CHANGE PASSWORD) -->
+            <div id="profileEditView" class="hidden flex-col h-full overflow-y-auto hide-scrollbar">
+                <div class="p-6">
+                    <div class="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-4 mb-6">
+                        <button onclick="toggleEditProfile()" class="p-1.5 bg-slate-100 dark:bg-slate-800 rounded text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition-colors"><i data-lucide="arrow-left" class="w-4 h-4"></i></button>
+                        <h2 class="text-xl font-black text-slate-900 dark:text-white">Edit Profile Intelligence</h2>
+                    </div>
+
+                    <div class="space-y-5">
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Avatar Upload (Auto-Compressed)</label>
+                            <div class="flex items-center gap-4">
+                                <div class="w-16 h-16 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden border border-slate-300 dark:border-slate-700 flex items-center justify-center shrink-0">
+                                    <img id="editAvatarPreview" src="" class="w-full h-full object-cover hidden">
+                                    <i id="editAvatarIcon" data-lucide="image" class="w-6 h-6 text-slate-400"></i>
+                                </div>
+                                <input type="file" id="avatarUpload" accept="image/*" class="text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-indigo-900/30 dark:file:text-indigo-300 cursor-pointer" onchange="handleAvatarUpload(event)">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Current Location Base</label>
+                            <input type="text" id="editLocationInput" class="w-full bg-white dark:bg-darkbg text-slate-800 dark:text-slate-200 p-3 rounded-xl border border-slate-300 dark:border-slate-700 focus:border-indigo-500 outline-none shadow-sm text-sm" placeholder="e.g., Jaipur HQ" maxlength="30">
+                        </div>
+
+                        <button onclick="saveProfileEdits()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black py-3 rounded-xl shadow-md transition-all text-sm uppercase tracking-widest mt-2">Save Base Changes</button>
+
+                        <div class="pt-6 border-t border-slate-200 dark:border-slate-800 mt-6">
+                            <label class="block text-[10px] font-bold text-rose-500 dark:text-rose-400 uppercase tracking-widest mb-3 flex items-center gap-1.5"><i data-lucide="lock" class="w-3.5 h-3.5"></i> Update Security PIN</label>
+                            
+                            <div class="space-y-3">
+                                <div class="relative">
+                                    <input type="password" id="editOldPass" placeholder="Current PIN" class="w-full bg-white dark:bg-darkbg text-slate-800 dark:text-slate-200 p-3 pr-10 rounded-xl border border-slate-300 dark:border-slate-700 outline-none shadow-sm text-sm tracking-widest font-mono">
+                                    <button onclick="togglePass('editOldPass', 'eyeOld')" class="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-300 transition-colors"><i id="eyeOld" data-lucide="eye" class="w-4 h-4"></i></button>
+                                </div>
+                                <div class="relative">
+                                    <input type="password" id="editNewPass" placeholder="New PIN" class="w-full bg-white dark:bg-darkbg text-slate-800 dark:text-slate-200 p-3 pr-10 rounded-xl border border-slate-300 dark:border-slate-700 outline-none shadow-sm text-sm tracking-widest font-mono">
+                                    <button onclick="togglePass('editNewPass', 'eyeNew')" class="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-300 transition-colors"><i id="eyeNew" data-lucide="eye" class="w-4 h-4"></i></button>
+                                </div>
+                                <button onclick="changePassword()" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl text-xs uppercase tracking-widest shadow-sm transition-all mt-1">Change PIN</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="fixed top-4 right-4 sm:top-auto sm:bottom-6 sm:right-6 z-[100] flex flex-col gap-2.5 pointer-events-none"></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, setDoc, getDocs, onSnapshot, updateDoc, addDoc, serverTimestamp, writeBatch, deleteDoc, deleteField } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // UPDATED: Fresh New Server Config
+        const userFirebaseConfig = {
+            apiKey: "AIzaSyAbXs0vdvBAdNqZa_7V_W6-x9SYo_y1A5Y",
+            authDomain: "admin-7a8e5.firebaseapp.com",
+            projectId: "admin-7a8e5",
+            storageBucket: "admin-7a8e5.firebasestorage.app",
+            messagingSenderId: "751025678000",
+            appId: "1:751025678000:web:9489d7d08d902bad14fd75"
+        };
+
+        let app, auth, db, currentUserId;
+        let isInitialized = false;
+        let isMembersLoaded = false;
+        let localMembers = [], localEvents = [], localGaddariVotes = [], localFeed = [];
+        let currentAmType = null;
+        let timeLockedCheckInterval = null;
+        
+        const DEFAULT_MEMBERS = [
+            { id: 'm1', name: 'ISHANT', password: 'ishant2112#', isAdmin: true },
+            { id: 'm2', name: 'GOVIND', password: 'Ghopghop5660' },
+            { id: 'm3', name: 'VIKAS', password: 'vikasji@2006' },
+            { id: 'm4', name: 'ROHIT', password: 'Sonu7739' },
+            { id: 'm5', name: 'JATIN', password: 'jatingeejgarh' },
+            { id: 'm6', name: 'OVERLORD YASH', password: '202538116@789456@789456', isAdmin: true } 
+        ];
+
+        let appId = 'local-squad-app';
+        let basePath = '';
+
+        const loginModal = document.getElementById('loginModal');
+        const appContent = document.getElementById('appContent');
+        const profileModal = document.getElementById('profileModal');
+        const adminModal = document.getElementById('adminModal');
+        const analyticsModal = document.getElementById('analyticsModal');
+        const rulesModal = document.getElementById('rulesModal');
+        let selectedLoginMember = null;
+        let activeProfileId = null;
+
+        // Utility: Find Monday midnight of current week
+        const getMonday = (d) => {
+            d = new Date(d);
+            var day = d.getDay(), diff = d.getDate() - day + (day == 0 ? -6: 1);
+            d.setDate(diff); d.setHours(0,0,0,0);
+            return d.getTime();
+        };
+
+        const getMillis = (ts) => {
+            try {
+                if (!ts) return 0;
+                if (typeof ts === 'number') return ts;
+                if (typeof ts === 'string') return new Date(ts).getTime();
+                if (typeof ts.toMillis === 'function') return ts.toMillis();
+                if (typeof ts.toDate === 'function') return ts.toDate().getTime();
+                if (ts.seconds) return ts.seconds * 1000;
+            } catch(e) { return 0; }
+            return 0;
+        };
+
+        window.toggleTheme = () => {
+            const html = document.documentElement;
+            if (html.classList.contains('dark')) { html.classList.remove('dark'); localStorage.theme = 'light'; } 
+            else { html.classList.add('dark'); localStorage.theme = 'dark'; }
+            lucide.createIcons();
+        };
+
+        window.togglePass = (inputId, iconId) => {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            if (input.type === "password") {
+                input.type = "text";
+                icon.setAttribute("data-lucide", "eye-off");
+            } else {
+                input.type = "password";
+                icon.setAttribute("data-lucide", "eye");
+            }
+            lucide.createIcons();
+        };
+
+        window.showToast = (message, type = 'info') => {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            let colorClasses = type === 'success' ? 'bg-emerald-100 dark:bg-emerald-950/90 border-emerald-300 dark:border-emerald-500/50 text-emerald-800 dark:text-emerald-100 shadow-md' :
+                               type === 'error' ? 'bg-rose-100 dark:bg-rose-950/90 border-rose-300 dark:border-rose-500/50 text-rose-800 dark:text-rose-100 shadow-md' :
+                               type === 'warning' ? 'bg-amber-100 dark:bg-amber-950/90 border-amber-300 dark:border-amber-500/50 text-amber-800 dark:text-amber-100 shadow-md' :
+                               'bg-indigo-100 dark:bg-indigo-950/90 border-indigo-300 dark:border-indigo-500/50 text-indigo-800 dark:text-indigo-100 shadow-md';
+            let iconName = type === 'success' ? 'check-circle-2' : type === 'error' ? 'alert-octagon' : type === 'warning' ? 'alert-triangle' : 'info';
+
+            toast.className = `border backdrop-blur-xl px-4 py-3 rounded-xl toast-enter flex items-center gap-2.5 font-semibold pointer-events-auto max-w-sm w-full ${colorClasses} z-[110]`;
+            toast.innerHTML = `<i data-lucide="${iconName}" class="w-4 h-4 opacity-90 shrink-0"></i> <span class="leading-tight text-xs sm:text-sm tracking-wide">${message}</span>`;
+            container.appendChild(toast);
+            lucide.createIcons();
+            setTimeout(() => {
+                toast.classList.replace('toast-enter', 'toast-exit');
+                setTimeout(() => toast.remove(), 200);
+            }, 3500);
+        };
+
+        const getLocalDateStr = () => {
+            const d = new Date();
+            return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+        };
+
+        async function bootup() {
+            lucide.createIcons();
+            if (typeof __app_id !== 'undefined') appId = __app_id;
+            let configToUse = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : userFirebaseConfig;
+
+            try {
+                app = initializeApp(configToUse);
+                auth = getAuth(app);
+                db = getFirestore(app);
+                basePath = `artifacts/${appId}/public/data`;
+                
+                const initAuth = async () => {
+                  if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                  } else {
+                    await signInAnonymously(auth);
+                  }
+                };
+                await initAuth();
+
+                onAuthStateChanged(auth, async (user) => {
+                    if (user && !isInitialized) {
+                        isInitialized = true;
+                        try {
+                            await ensureDatabaseStructure();
+                            startRealtimeListeners();
+                            startDailyCountdown();
+                            startPresenceTracker();
+                        } catch(err) {}
+                    }
+                });
+            } catch (error) { showToast(`Firebase Error`, 'error'); }
+        }
+
+        async function ensureDatabaseStructure() {
+            const membersRef = collection(db, basePath, 'members');
+            const snap = await getDocs(membersRef);
+            const now = Date.now();
+            const currentMonday = getMonday(now);
+
+            if (snap.empty) {
+                const batch = writeBatch(db);
+                DEFAULT_MEMBERS.forEach(m => {
+                    const docRef = doc(db, basePath, 'members', m.id);
+                    batch.set(docRef, { 
+                        ...m, satvikCount: 2, lahsunCount: 0, nonvegCount: 0, 
+                        gaddariIndex: 0, location: 'Base HQ', avatarBase64: '', appOpens: 0,
+                        allianceWith: null, allianceEndTime: 0,
+                        defenseShields: 0, voteStreak: 0, lastVoteDate: '',
+                        achievements: { trusted: false, weaponsMaster: false, diplomat: false, merciful: false },
+                        lastActiveTime: now, lastResetMonday: currentMonday, lastShieldBuyTime: 0
+                    });
+                });
+                await batch.commit();
+            }
+        }
+
+        let dbSynced = false;
+        function startRealtimeListeners() {
+            onSnapshot(collection(db, basePath, 'members'), async (snap) => {
+                localMembers = [];
+                snap.forEach(d => localMembers.push(d.data()));
+                localMembers.sort((a,b) => a.id.localeCompare(b.id));
+
+                if (!dbSynced && localMembers.length > 0) {
+                    dbSynced = true;
+                    let needsUpdate = false;
+                    const batch = writeBatch(db);
+                    localMembers.forEach(dbMember => {
+                        const target = DEFAULT_MEMBERS.find(m => m.id === dbMember.id);
+                        if (target) {
+                            let updates = {};
+                            if (dbMember.name !== target.name) updates.name = target.name;
+                            if (dbMember.password === undefined) updates.password = target.password;
+                            if (dbMember.isAdmin !== target.isAdmin) updates.isAdmin = target.isAdmin;
+                            if (dbMember.defenseShields === undefined) updates.defenseShields = 0;
+                            if (dbMember.voteStreak === undefined) updates.voteStreak = 0;
+                            if (dbMember.lastResetMonday === undefined) updates.lastResetMonday = getMonday(Date.now());
+                            if (dbMember.lastShieldBuyTime === undefined) updates.lastShieldBuyTime = 0;
+                            if (dbMember.achievements === undefined) updates.achievements = { trusted: false, weaponsMaster: false, diplomat: false, merciful: false };
+                            
+                            if (dbMember.andiMandiTokens !== undefined) updates.andiMandiTokens = deleteField();
+
+                            if (Object.keys(updates).length > 0) { 
+                                batch.update(doc(db, basePath, 'members', dbMember.id), updates); 
+                                needsUpdate = true; 
+                            }
+                        }
+                    });
+                    if (needsUpdate) await batch.commit();
+                }
+
+                if (!isMembersLoaded) {
+                    isMembersLoaded = true;
+                    await checkSavedLogin();
+                } else if (!currentUserId) {
+                    renderLoginScreen();
+                } else {
+                    runGlobalMaintenance(); // Execute Monday reset + inactivity checks globally
+                    updateDashboardUI();
+                    if(activeProfileId) updateProfileModalData();
+                    updateAdminUI();
+                }
+            });
+
+            onSnapshot(collection(db, basePath, 'am_events'), (snap) => {
+                localEvents = [];
+                snap.forEach(d => localEvents.push({ uid: d.id, ...d.data() }));
+                localEvents.sort((a,b) => getMillis(b.timestamp) - getMillis(a.timestamp));
+                if (currentUserId) { updateDashboardUI(); if(activeProfileId) updateProfileModalData(); updateAdminUI(); }
+            });
+
+            onSnapshot(collection(db, basePath, 'gaddari_votes'), (snap) => {
+                localGaddariVotes = [];
+                snap.forEach(d => localGaddariVotes.push({ uid: d.id, ...d.data() }));
+                localGaddariVotes.sort((a,b) => getMillis(b.timestamp) - getMillis(a.timestamp));
+                if (currentUserId) { updateDashboardUI(); if(activeProfileId) updateProfileModalData(); updateAdminUI(); }
+            });
+
+            onSnapshot(collection(db, basePath, 'squad_feed'), (snap) => {
+                localFeed = [];
+                snap.forEach(d => localFeed.push({ uid: d.id, ...d.data() }));
+                localFeed.sort((a,b) => getMillis(b.timestamp) - getMillis(a.timestamp));
+                if (currentUserId) { renderFeed(); updateAdminUI(); }
+            });
+            
+            if (!timeLockedCheckInterval) {
+                timeLockedCheckInterval = setInterval(checkTimeLockedResolutions, 60000);
+            }
+        }
+
+        // --- GLOBAL MAINTENANCE: Monday Reset & Inactivity ---
+        async function runGlobalMaintenance() {
+            if(!currentUserId || localMembers.length === 0) return;
+            const now = Date.now();
+            const currentMonday = getMonday(now);
+            const batch = writeBatch(db);
+            let needsCommit = false;
+
+            localMembers.forEach(m => {
+                let updates = {};
+                // 1. Monday Reset
+                if (m.lastResetMonday !== currentMonday) {
+                    updates.lastResetMonday = currentMonday;
+                    updates.satvikCount = 2; // Renew exactly to 2
+                }
+
+                // 2. 3-Day Inactivity Wipe
+                const lastActive = m.lastActiveTime || now; 
+                if ((now - lastActive) > (3 * 24 * 60 * 60 * 1000)) {
+                    if (m.satvikCount > 0) {
+                        updates.satvikCount = 0;
+                    }
+                }
+
+                if (Object.keys(updates).length > 0) {
+                    batch.update(doc(db, basePath, 'members', m.id), updates);
+                    needsCommit = true;
+                }
+            });
+
+            if (needsCommit) {
+                try { await batch.commit(); } catch(e) {}
+            }
+        }
+
+        function startDailyCountdown() {
+            const display = document.getElementById('dailyCountdown');
+            setInterval(() => {
+                const now = new Date();
+                const midnight = new Date();
+                midnight.setHours(24, 0, 0, 0); 
+                const diff = midnight - now;
+                const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const s = Math.floor((diff % (1000 * 60)) / 1000);
+                display.innerText = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+            }, 1000);
+        }
+
+        function startPresenceTracker() {
+            setInterval(async () => {
+                if(currentUserId) {
+                    try { await updateDoc(doc(db, basePath, 'members', currentUserId), { lastActiveTime: Date.now() }); } catch(e) {}
+                }
+            }, 120000);
+        }
+
+        async function checkTimeLockedResolutions() {
+            if(!currentUserId) return;
+            const now = Date.now();
+            const FORTY_EIGHT_HOURS = 48 * 60 * 60 * 1000;
+            
+            const pending = [...localEvents.filter(e => e.status === 'pending').map(e => ({...e, category: 'card'})), 
+                             ...localGaddariVotes.filter(v => v.status === 'pending').map(v => ({...v, category: 'gaddari'}))];
+            
+            for(const ev of pending) {
+                const evTime = getMillis(ev.timestamp) || now;
+                if (now - evTime > FORTY_EIGHT_HOURS) {
+                    const isReporter = (ev.category === 'card' && ev.reportedBy === currentUserId) || (ev.category === 'gaddari' && ev.voterId === currentUserId);
+                    const me = localMembers.find(m => m.id === currentUserId);
+                    
+                    if (isReporter || (me && me.isAdmin)) {
+                        let approves = 0, rejects = 0;
+                        if(ev.votes) {
+                            Object.values(ev.votes).forEach(v => { 
+                                const decision = typeof v === 'object' ? v.decision : v;
+                                if(decision) approves++; else rejects++; 
+                            });
+                        }
+                        
+                        let newStatus = 'rejected';
+                        if (approves > rejects) newStatus = 'confirmed';
+                        
+                        try {
+                            const collectionName = ev.category === 'card' ? 'am_events' : 'gaddari_votes';
+                            
+                            if (newStatus === 'confirmed') {
+                                if (ev.category === 'card') {
+                                    const targetMember = localMembers.find(m => m.id === ev.userId);
+                                    const countKey = `${ev.type}Count`;
+                                    if (targetMember && targetMember[countKey] > 0) {
+                                        await updateDoc(doc(db, basePath, 'members', targetMember.id), { [countKey]: targetMember[countKey] - 1 });
+                                    }
+                                } else if (ev.category === 'gaddari') {
+                                    const targetMember = localMembers.find(m => m.id === ev.targetId);
+                                    if (targetMember) {
+                                        if (targetMember.defenseShields > 0) {
+                                            await updateDoc(doc(db, basePath, 'members', targetMember.id), { defenseShields: targetMember.defenseShields - 1 });
+                                            await addDoc(collection(db, basePath, 'squad_feed'), { text: `🛡️ SYSTEM: ${targetMember.name} automatically deployed a Defense Shield blocking a time-locked Gaddari penalty!`, authorId: 'SYSTEM', timestamp: serverTimestamp(), isSystem: true });
+                                        } else {
+                                            const newGaddari = Math.min(100, (targetMember.gaddariIndex || 0) + 10);
+                                            await updateDoc(doc(db, basePath, 'members', targetMember.id), { gaddariIndex: newGaddari });
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            await updateDoc(doc(db, basePath, collectionName, ev.uid), { status: newStatus, isAutoResolved: true });
+                            await addDoc(collection(db, basePath, 'squad_feed'), { text: `⏱️ SYSTEM: A pending case was auto-resolved to [${newStatus.toUpperCase()}] after 48 hours of inactivity.`, authorId: 'SYSTEM', timestamp: serverTimestamp(), isSystem: true });
+                            
+                        } catch(e) { console.error("Auto-resolve failed", e); }
+                    }
+                }
+            }
+        }
+
+        async function checkSavedLogin() {
+            const savedId = localStorage.getItem(`squad_user_${appId}`);
+            if (savedId && localMembers.find(m => m.id === savedId)) {
+                currentUserId = savedId;
+                await processAppOpen(currentUserId);
+                showApp();
+            } else { 
+                renderLoginScreen(); 
+            }
+        }
+
+        async function processAppOpen(uid) {
+            if (!sessionStorage.getItem(`appOpened_${uid}`)) {
+                try {
+                    const me = localMembers.find(m => m.id === uid);
+                    if(me) {
+                        await updateDoc(doc(db, basePath, 'members', uid), { appOpens: (me.appOpens || 0) + 1, lastActiveTime: Date.now() });
+                        sessionStorage.setItem(`appOpened_${uid}`, 'true');
+                    }
+                } catch(e) {}
+            }
+        }
+
+        function renderLoginScreen() {
+            loginModal.classList.remove('hidden');
+            document.getElementById('loginStep1').classList.remove('hidden');
+            document.getElementById('loginStep2').classList.add('hidden');
+            document.getElementById('loginPasswordInput').value = '';
+            
+            const container = document.getElementById('loginMembersList');
+            container.innerHTML = '';
+            
+            localMembers.forEach((m) => {
+                const isAdmin = m.isAdmin;
+                const avatarSrc = m.avatarBase64;
+                
+                let avatarHtml = '';
+                if(avatarSrc) {
+                    avatarHtml = `<img src="${avatarSrc}" class="w-full h-full object-cover rounded-full border ${isAdmin?'border-amber-500':'border-slate-300 dark:border-slate-700'}">`;
+                } else {
+                    avatarHtml = `
+                        <div class="w-full h-full rounded-full ${isAdmin ? 'bg-amber-100 border-amber-300 text-amber-600 dark:bg-amber-900 dark:border-amber-500 dark:text-amber-400' : 'bg-slate-100 border-slate-300 text-slate-500 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-400'} flex items-center justify-center border transition-colors">
+                            <i data-lucide="${isAdmin ? 'crown' : 'user'}" class="w-4 h-4"></i>
+                        </div>
+                    `;
+                }
+
+                const btn = document.createElement('button');
+                btn.className = `w-full flex items-center justify-between px-5 py-3.5 rounded-xl border ${isAdmin ? 'border-amber-300 bg-amber-50 hover:bg-amber-100 dark:border-amber-500/50 dark:bg-amber-950/20 dark:hover:bg-amber-900/40' : 'border-slate-200 bg-white hover:bg-slate-50 dark:border-slate-700/50 dark:bg-[#0f1423]/80 dark:hover:bg-slate-800'} text-slate-800 dark:text-white font-bold transition-all group shadow-sm`;
+                btn.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 shrink-0">${avatarHtml}</div>
+                        <span class="tracking-wide text-sm sm:text-base ${isAdmin ? 'text-amber-600 dark:text-amber-400' : ''}">${m.name}</span>
+                    </div>
+                    <i data-lucide="chevron-right" class="w-4 h-4 ${isAdmin ? 'text-amber-400' : 'text-slate-400'} transition-colors"></i>
+                `;
+                btn.onclick = () => {
+                    selectedLoginMember = m;
+                    document.getElementById('loginAttemptName').innerText = m.name;
+                    document.getElementById('loginStep1').classList.add('hidden');
+                    document.getElementById('loginStep2').classList.remove('hidden');
+                    setTimeout(() => document.getElementById('loginPasswordInput').focus(), 100);
+                };
+                container.appendChild(btn);
+            });
+            lucide.createIcons();
+        }
+
+        window.backToLoginStep1 = () => {
+            document.getElementById('loginStep2').classList.add('hidden');
+            document.getElementById('loginStep1').classList.remove('hidden');
+            selectedLoginMember = null;
+        }
+
+        document.getElementById('loginSubmitBtn').addEventListener('click', attemptLogin);
+        document.getElementById('loginPasswordInput').addEventListener('keypress', (e) => { if(e.key === 'Enter') attemptLogin(); });
+
+        async function attemptLogin() {
+            const pwd = document.getElementById('loginPasswordInput').value;
+            if (!selectedLoginMember) return;
+            if (pwd === selectedLoginMember.password) {
+                currentUserId = selectedLoginMember.id;
+                localStorage.setItem(`squad_user_${appId}`, selectedLoginMember.id);
+                loginModal.classList.add('hidden');
+                
+                await processAppOpen(currentUserId);
+                runGlobalMaintenance();
+                
+                showToast(`Access Granted.`, 'success');
+                showApp();
+            } else {
+                showToast("Invalid PIN", 'error');
+                const input = document.getElementById('loginPasswordInput');
+                input.classList.add('border-rose-500', 'bg-rose-50', 'dark:bg-rose-950/20');
+                setTimeout(() => input.classList.remove('border-rose-500', 'bg-rose-50', 'dark:bg-rose-950/20'), 800);
+            }
+        }
+
+        window.logout = () => {
+            localStorage.removeItem(`squad_user_${appId}`);
+            sessionStorage.removeItem(`appOpened_${currentUserId}`);
+            currentUserId = null;
+            appContent.classList.add('hidden');
+            appContent.classList.remove('flex');
+            renderLoginScreen();
+        };
+
+        function showApp() { 
+            appContent.classList.remove('hidden'); 
+            appContent.classList.add('flex'); 
+            updateDashboardUI(); 
+            renderFeed(); 
+        }
+
+        window.openRulesModal = () => { rulesModal.classList.remove('hidden'); };
+        window.closeRulesModal = () => { rulesModal.classList.add('hidden'); };
+
+        // --- ALLIANCE FEATURES ---
+        window.proposeAlliance = async (targetId) => {
+            const target = localMembers.find(m => m.id === targetId);
+            const me = localMembers.find(m => m.id === currentUserId);
+            if(me.allianceWith) { showToast("You are already in an alliance.", "error"); return; }
+            if(target.allianceWith) { showToast(`${target.name} is already allied.`, "error"); return; }
+            
+            if(!confirm(`Form Neta Alliance with ${target.name}? You will share Gaddar punishments if accepted.`)) return;
+            
+            try {
+                const expire = Date.now() + (48 * 60 * 60 * 1000);
+                const batch = writeBatch(db);
+                batch.update(doc(db, basePath, 'members', me.id), { allianceWith: targetId, allianceEndTime: expire, 'achievements.diplomat': true });
+                batch.update(doc(db, basePath, 'members', targetId), { allianceWith: me.id, allianceEndTime: expire, 'achievements.diplomat': true });
+                await batch.commit();
+                
+                await addDoc(collection(db, basePath, 'squad_feed'), { text: `🤝 ${me.name} and ${target.name} formed a Neta Alliance!`, authorId: 'SYSTEM', timestamp: serverTimestamp(), likes: [], dislikes: [], isSystem: true });
+                
+                showToast("Alliance Formed! Valid for 48 hours.", "success");
+                closeProfileModal();
+            } catch(e) { showToast("Failed to form alliance.", "error"); }
+        }
+
+        window.breakAlliance = async () => {
+            const me = localMembers.find(m => m.id === currentUserId);
+            if(!me || !me.allianceWith) return;
+            
+            if(me.nonvegCount < 1) { showToast("Breaking an alliance requires 1 Non-Veg Card.", "error"); return; }
+            if(!confirm(`Break alliance with ${getName(me.allianceWith)}? This costs 1 Non-Veg.`)) return;
+
+            try {
+                const partnerId = me.allianceWith;
+                const batch = writeBatch(db);
+                batch.update(doc(db, basePath, 'members', me.id), { allianceWith: null, allianceEndTime: 0, nonvegCount: me.nonvegCount - 1 });
+                batch.update(doc(db, basePath, 'members', partnerId), { allianceWith: null, allianceEndTime: 0 });
+                await batch.commit();
+                
+                await addDoc(collection(db, basePath, 'squad_feed'), { text: `💔 ${me.name} brutally broke their alliance with ${getName(partnerId)}!`, authorId: 'SYSTEM', timestamp: serverTimestamp(), likes: [], dislikes: [], isSystem: true });
+                
+                showToast("Alliance broken.", "success");
+                closeProfileModal();
+            } catch(e) { showToast("Failed to break.", "error"); }
+        }
+
+        window.transferItem = async (type) => {
+            if(!activeProfileId) return;
+            const me = localMembers.find(m => m.id === currentUserId);
+            const target = localMembers.find(m => m.id === activeProfileId);
+            if(me.allianceWith !== target.id) return;
+
+            const countKey = `${type}Count`;
+            if ((me[countKey] || 0) <= 0) { showToast(`You have 0 ${type} to send.`, "error"); return; }
+            
+            try {
+                const batch = writeBatch(db);
+                batch.update(doc(db, basePath, 'members', me.id), { [countKey]: me[countKey] - 1 });
+                batch.update(doc(db, basePath, 'members', target.id), { [countKey]: (target[countKey] || 0) + 1 });
+                await batch.commit();
+                showToast(`Transferred 1 ${type} to ${target.name}!`, "success");
+                updateProfileModalData();
+            } catch(e) { showToast("Failed transfer.", "error"); }
+        }
+
+        // --- BLACK MARKET / SHIELDS ---
+        window.buyDefenseShield = async () => {
+            const me = localMembers.find(m => m.id === currentUserId);
+            if(!me) return;
+            
+            const day = new Date().getDay(); // 0=Sun, 1=Mon, 2=Tue, 3=Wed, 4=Thu, 5=Fri, 6=Sat
+            if (![1, 2, 3].includes(day)) {
+                showToast("Shields can ONLY be bought on Mon, Tue, or Wed.", "error");
+                return;
+            }
+
+            if((me.satvikCount || 0) < 1) { showToast("Insufficient Satvik Cards.", "error"); return; }
+            if(!confirm("Spend 1 Satvik Card for a Defense Shield? (Blocks 1 Gaddari penalty automatically)")) return;
+
+            try {
+                await updateDoc(doc(db, basePath, 'members', me.id), { 
+                    satvikCount: me.satvikCount - 1, 
+                    defenseShields: (me.defenseShields || 0) + 1,
+                    lastShieldBuyTime: Date.now(),
+                    'achievements.weaponsMaster': true 
+                });
+                showToast("Defense Shield Acquired! (30s Undo Window Active)", "success");
+                updateDashboardUI();
+            } catch(e) { showToast("Transaction failed.", "error"); }
+        }
+
+        window.sellDefenseShield = async () => {
+            const me = localMembers.find(m => m.id === currentUserId);
+            if(!me) return;
+            if((me.defenseShields || 0) < 1) { showToast("You have no shields to return.", "error"); return; }
+
+            const now = Date.now();
+            if (!me.lastShieldBuyTime || (now - me.lastShieldBuyTime > 30000)) {
+                showToast("Undo period (30 seconds) has expired. Cannot return.", "error");
+                return;
+            }
+
+            try {
+                await updateDoc(doc(db, basePath, 'members', me.id), { 
+                    satvikCount: (me.satvikCount || 0) + 1, 
+                    defenseShields: me.defenseShields - 1,
+                    lastShieldBuyTime: 0 
+                });
+                showToast("Shield purchase successfully undone.", "success");
+                updateDashboardUI();
+            } catch(e) { showToast("Transaction failed.", "error"); }
+        }
+
+        // --- UI UPDATES ---
+        function updateScorecards() {
+            if(localMembers.length === 0) return;
+            
+            const sortRender = (arr, elId, formatFunc) => {
+                const el = document.getElementById(elId);
+                el.innerHTML = '';
+                arr.slice(0,3).forEach((m, idx) => {
+                    const medal = idx === 0 ? '🥇' : idx === 1 ? '🥈' : '🥉';
+                    el.innerHTML += `
+                        <div class="flex justify-between items-center bg-white/50 dark:bg-black/20 px-2 py-1 rounded mb-1">
+                            <span class="flex items-center gap-1">${medal} <span class="truncate w-16 sm:w-20 text-left text-[11px]">${m.name}</span></span>
+                            <span class="text-[11px]">${formatFunc(m)}</span>
+                        </div>
+                    `;
+                });
+            };
+            
+            sortRender([...localMembers].sort((a,b) => b.gaddariIndex - a.gaddariIndex), 'leaderboardGaddar', m => `${m.gaddariIndex}%`);
+            sortRender([...localMembers].sort((a,b) => a.gaddariIndex - b.gaddariIndex), 'leaderboardPeace', m => `${m.gaddariIndex}%`);
+            sortRender([...localMembers].sort((a,b) => (b.satvikCount+b.lahsunCount+b.nonvegCount) - (a.satvikCount+a.lahsunCount+a.nonvegCount)), 'leaderboardArmed', m => m.satvikCount+m.lahsunCount+m.nonvegCount);
+        }
+
+        document.getElementById('gaddarTarget').addEventListener('change', (e) => {
+            const div = document.getElementById('gaddarReasonDiv');
+            const btn = document.getElementById('castJudgmentBtn');
+            if(e.target.value === 'none') {
+                div.classList.add('hidden');
+                btn.innerText = "Maintain Peace";
+                btn.className = "w-full bg-slate-800 hover:bg-slate-700 text-white font-black py-3 rounded-lg transition-all text-xs uppercase tracking-widest shadow-sm";
+            } else {
+                div.classList.remove('hidden');
+                btn.innerText = "Accuse (Req: 3 Approvals)";
+                btn.className = "w-full bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 text-white font-black py-3 rounded-lg transition-all shadow-md transform active:scale-95 text-xs uppercase tracking-widest mt-1";
+            }
+        });
+
+        // --- SQUAD SOCIAL FEED ---
+        function renderFeed() {
+            const feed = document.getElementById('socialFeedContainer');
+            feed.innerHTML = '';
+            
+            if (localFeed.length === 0) {
+                feed.innerHTML = `<div class="h-full flex items-center justify-center"><p class="text-xs text-blue-500/50 italic text-center">Feed is silent. Be the first to drop some info...</p></div>`;
+                return;
+            }
+
+            const me = localMembers.find(m => m.id === currentUserId);
+
+            localFeed.forEach(post => {
+                let timeAgo = '';
+                if(post.timestamp) {
+                    const diffMs = Date.now() - getMillis(post.timestamp);
+                    const mins = Math.floor(diffMs / 60000);
+                    if (mins < 60) timeAgo = `${mins}m`;
+                    else if (mins < 1440) timeAgo = `${Math.floor(mins/60)}h`;
+                    else timeAgo = `${Math.floor(mins/1440)}d`;
+                }
+
+                if(post.isSystem) {
+                    const div = document.createElement('div');
+                    div.className = 'bg-amber-50 dark:bg-amber-950/20 p-3 rounded-lg border border-amber-200 dark:border-amber-900/30 flex items-center gap-2 mb-3';
+                    div.innerHTML = `
+                        <i data-lucide="bot" class="w-4 h-4 text-amber-500 shrink-0"></i>
+                        <p class="text-[10px] text-amber-800 dark:text-amber-400 font-medium"><strong class="font-bold uppercase tracking-wider text-amber-600 dark:text-amber-500 mr-1">System:</strong> ${post.text}</p>
+                    `;
+                    feed.appendChild(div);
+                } else {
+                    const author = localMembers.find(m => m.id === post.authorId) || { name: 'Unknown', location: '', avatarBase64: '' };
+                    const likes = post.likes || [];
+                    const dislikes = post.dislikes || [];
+                    const hasLiked = likes.includes(currentUserId);
+                    const hasDisliked = dislikes.includes(currentUserId);
+                    
+                    let avatarHtml = author.avatarBase64 ? 
+                        `<img src="${author.avatarBase64}" class="w-full h-full object-cover">` : 
+                        `<i data-lucide="user" class="w-4 h-4 text-slate-500"></i>`;
+
+                    let deleteBtn = '';
+                    if (me && me.isAdmin) {
+                        deleteBtn = `<button onclick="deletePost('${post.uid}')" class="p-1 hover:bg-rose-100 dark:hover:bg-rose-900/30 rounded text-slate-400 hover:text-rose-500 transition-colors ml-auto"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>`;
+                    }
+
+                    const div = document.createElement('div');
+                    div.className = 'feed-item bg-white/80 dark:bg-[#030712]/80 p-3.5 rounded-xl border border-blue-200 dark:border-blue-500/20 shadow-sm mb-3';
+                    div.innerHTML = `
+                        <div class="flex items-center gap-2.5 mb-2">
+                            <div class="w-8 h-8 shrink-0 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden border border-slate-300 dark:border-slate-700 flex items-center justify-center">${avatarHtml}</div>
+                            <div>
+                                <p class="text-xs font-bold text-slate-900 dark:text-white leading-none">${author.name}</p>
+                                <p class="text-[9px] text-slate-500 dark:text-slate-400 font-medium mt-0.5"><i data-lucide="map-pin" class="w-2.5 h-2.5 inline"></i> ${author.location || 'Base'}</p>
+                            </div>
+                            <span class="text-[9px] text-slate-400 font-bold ml-auto">${timeAgo}</span>
+                            ${deleteBtn}
+                        </div>
+                        <p class="text-xs text-slate-700 dark:text-slate-300 font-medium leading-relaxed pl-1">"${post.text}"</p>
+                        
+                        <div class="flex items-center gap-3 mt-3 pt-2 border-t border-slate-100 dark:border-slate-800/60 pl-1">
+                            <button onclick="interactPost('${post.uid}', 'like')" class="flex items-center gap-1.5 text-[10px] font-bold ${hasLiked ? 'text-blue-600 dark:text-blue-400' : 'text-slate-500 hover:text-blue-500'} transition-colors">
+                                <i data-lucide="thumbs-up" class="w-3.5 h-3.5 ${hasLiked ? 'fill-current' : ''}"></i> ${likes.length}
+                            </button>
+                            <button onclick="interactPost('${post.uid}', 'dislike')" class="flex items-center gap-1.5 text-[10px] font-bold ${hasDisliked ? 'text-rose-600 dark:text-rose-400' : 'text-slate-500 hover:text-rose-500'} transition-colors">
+                                <i data-lucide="thumbs-down" class="w-3.5 h-3.5 ${hasDisliked ? 'fill-current' : ''}"></i> ${dislikes.length}
+                            </button>
+                        </div>
+                    `;
+                    feed.appendChild(div);
+                }
+            });
+            lucide.createIcons();
+        }
+
+        window.postToFeed = async () => {
+            const input = document.getElementById('feedInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            try {
+                await addDoc(collection(db, basePath, 'squad_feed'), {
+                    text: text,
+                    authorId: currentUserId, 
+                    timestamp: serverTimestamp(),
+                    likes: [],
+                    dislikes: [],
+                    isSystem: false
+                });
+                input.value = '';
+                showToast("Posted to Squad Feed.", "success");
+            } catch (err) { showToast("Failed to post.", "error"); }
+        }
+
+        window.interactPost = async (postId, action) => {
+            const post = localFeed.find(p => p.uid === postId);
+            if(!post) return;
+
+            let likes = [...(post.likes || [])];
+            let dislikes = [...(post.dislikes || [])];
+
+            if (action === 'like') {
+                if (likes.includes(currentUserId)) likes = likes.filter(id => id !== currentUserId);
+                else { likes.push(currentUserId); dislikes = dislikes.filter(id => id !== currentUserId); }
+            } else if (action === 'dislike') {
+                if (dislikes.includes(currentUserId)) dislikes = dislikes.filter(id => id !== currentUserId);
+                else { dislikes.push(currentUserId); likes = likes.filter(id => id !== currentUserId); }
+            }
+
+            try {
+                await updateDoc(doc(db, basePath, 'squad_feed', postId), { likes, dislikes });
+            } catch(e) { console.warn("Failed interaction", e); }
+        }
+
+        window.deletePost = async (postId) => {
+            if(!confirm("Overlord: Delete this post permanently?")) return;
+            try {
+                await deleteDoc(doc(db, basePath, 'squad_feed', postId));
+                showToast("Post purged from the database.", "success");
+            } catch(e) { showToast("Delete failed", "error"); }
+        }
+
+        function updateDashboardUI() {
+            if (!currentUserId) return;
+            const me = localMembers.find(m => m.id === currentUserId);
+            if (!me) return;
+
+            const now = Date.now();
+            let dbUpdates = {};
+            
+            if (me.allianceWith && me.allianceEndTime < now) {
+                dbUpdates.allianceWith = null; dbUpdates.allianceEndTime = 0;
+            }
+            if (Object.keys(dbUpdates).length > 0) {
+                updateDoc(doc(db, basePath, 'members', me.id), dbUpdates);
+            }
+
+            updateScorecards();
+
+            if(me.isAdmin) document.getElementById('btnAdminPortal').classList.remove('hidden');
+            else document.getElementById('btnAdminPortal').classList.add('hidden');
+
+            document.getElementById('headerWelcome').innerText = `Operative: ${me.name}`;
+            const headerGaddar = document.getElementById('headerGaddar');
+            headerGaddar.innerText = `${me.gaddariIndex}%`;
+            if (me.gaddariIndex > 70) headerGaddar.classList.add('text-rose-600', 'dark:text-rose-400', 'animate-pulse-slow'); 
+            else headerGaddar.classList.remove('text-rose-600', 'dark:text-rose-400', 'animate-pulse-slow');
+
+            // Shields display
+            document.getElementById('headerShields').innerText = me.defenseShields || 0;
+            document.getElementById('mobileShields').innerText = me.defenseShields || 0;
+            document.getElementById('currentStreak').innerText = me.voteStreak || 0;
+
+            const isBlocked = (me.gaddariIndex > 70) && !me.isAdmin; 
+            const lockoutNotice = document.getElementById('gaddarLockoutNotice');
+            const cardsContainer = document.getElementById('cardsContainer');
+            
+            if (isBlocked) {
+                lockoutNotice.classList.remove('hidden'); 
+                cardsContainer.classList.add('disabled-card'); 
+            } else {
+                lockoutNotice.classList.add('hidden'); 
+                cardsContainer.classList.remove('disabled-card'); 
+            }
+
+            document.getElementById('countSatvik').innerText = me.satvikCount;
+            document.getElementById('countLahsun').innerText = me.lahsunCount;
+            document.getElementById('countNonveg').innerText = me.nonvegCount;
+
+            const usersWithPendingEvents = new Set();
+            localEvents.filter(e => e.status === 'pending').forEach(e => usersWithPendingEvents.add(e.userId));
+            localGaddariVotes.filter(v => v.status === 'pending' && v.targetId !== 'none').forEach(v => usersWithPendingEvents.add(v.targetId));
+
+            const squadList = document.getElementById('squadList');
+            squadList.innerHTML = '';
+            localMembers.forEach(m => {
+                const isMe = m.id === currentUserId;
+                const isDanger = m.gaddariIndex > 70;
+                const isAdmin = m.isAdmin;
+                const inTribunal = usersWithPendingEvents.has(m.id);
+                const isOnline = m.lastActiveTime && (now - m.lastActiveTime < 300000); // 5 minutes
+                
+                let rowBgHover = 'hover:bg-slate-50 dark:hover:bg-slate-800/40';
+                let avatarBorder = 'bg-slate-50 dark:bg-darkbg border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400';
+                let nameColor = 'text-slate-800 dark:text-slate-200';
+                
+                let avatarHtml = m.avatarBase64 ? 
+                    `<img src="${m.avatarBase64}" class="w-full h-full object-cover">` : 
+                    `<i data-lucide="${isAdmin ? 'crown' : (isDanger ? 'shield-alert' : 'user')}" class="w-4 h-4 sm:w-4 sm:h-4"></i>`;
+
+                if (isAdmin) {
+                    rowBgHover = 'hover:bg-amber-50 dark:hover:bg-amber-900/20';
+                    avatarBorder = 'bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-500/50 text-amber-600 dark:text-amber-400';
+                    nameColor = 'text-amber-600 dark:text-amber-400';
+                } else if (isDanger) {
+                    avatarBorder = 'bg-rose-50 dark:bg-rose-950/40 border-rose-300 dark:border-rose-500/50 text-rose-600 dark:text-rose-400';
+                    nameColor = 'text-rose-600 dark:text-rose-400';
+                }
+
+                if (isMe) { rowBgHover = isAdmin ? 'bg-amber-50 dark:bg-amber-900/20' : 'bg-indigo-50 dark:bg-indigo-900/10 hover:bg-indigo-100 dark:hover:bg-indigo-900/20'; }
+
+                const onlineIndicator = isOnline ? 
+                    `<div class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-white dark:border-[#0f1423] rounded-full shadow-sm"></div>` : 
+                    `<div class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-slate-300 dark:bg-slate-600 border-2 border-white dark:border-[#0f1423] rounded-full shadow-sm"></div>`;
+
+                const div = document.createElement('div');
+                div.className = `flex items-center justify-between px-4 py-3 sm:px-5 sm:py-3.5 transition-all cursor-pointer group ${rowBgHover}`;
+                div.onclick = () => openProfileModal(m.id);
+                
+                let linkIcon = m.allianceWith ? `<i data-lucide="link" class="w-3 h-3 text-indigo-500 inline ml-1"></i>` : '';
+
+                div.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="relative w-9 h-9 sm:w-10 sm:h-10 shrink-0">
+                            <div class="w-full h-full rounded-full flex items-center justify-center border transition-transform group-hover:scale-105 overflow-hidden shadow-sm ${avatarBorder}">
+                                ${avatarHtml}
+                            </div>
+                            ${onlineIndicator}
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-1.5 sm:gap-2">
+                                <span class="font-bold tracking-wide text-[13px] sm:text-sm ${nameColor} group-hover:text-slate-900 dark:group-hover:text-white transition-colors">${m.name}</span>
+                                ${linkIcon}
+                                ${inTribunal ? '<span class="text-[8px] sm:text-[9px] px-1.5 py-0.5 rounded-full bg-rose-500 text-white font-bold uppercase tracking-widest animate-pulse shadow-sm">In Tribunal</span>' : ''}
+                                ${isMe ? '<span class="text-[8px] sm:text-[9px] px-1.5 py-0.5 rounded bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 font-bold uppercase tracking-widest border border-indigo-200 dark:border-indigo-500/30">You</span>' : ''}
+                            </div>
+                            <div class="flex items-center gap-2 mt-0.5">
+                                <span class="text-[8px] text-slate-400 font-medium"><i data-lucide="map-pin" class="w-2 h-2 inline"></i> ${m.location || 'Base'}</span>
+                                <span class="text-[8px] text-slate-400 font-medium"><i data-lucide="shield" class="w-2 h-2 inline"></i> ${m.defenseShields || 0}</span>
+                            </div>
+                            <div class="w-20 sm:w-28 h-1 bg-slate-200 dark:bg-slate-900 rounded-full mt-1.5 overflow-hidden border border-slate-300 dark:border-slate-800">
+                                <div class="h-full rounded-full transition-all duration-1000 ${isDanger ? 'bg-gradient-to-r from-rose-500 to-red-500' : 'bg-gradient-to-r from-emerald-400 to-teal-400'}" style="width: ${m.gaddariIndex}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center gap-4 sm:gap-6">
+                        <div class="w-12 text-right">
+                            <span class="text-base sm:text-lg font-black ${isDanger ? 'text-rose-600 dark:text-rose-500' : 'text-slate-700 dark:text-slate-300'}">${m.gaddariIndex}%</span>
+                        </div>
+                    </div>
+                `;
+                squadList.appendChild(div);
+            });
+
+            const targetSelect = document.getElementById('gaddarTarget');
+            const currentSelection = targetSelect.value;
+            targetSelect.innerHTML = '<option value="none">🕊️ No One (Maintain Peace)</option>';
+            localMembers.forEach(m => {
+                if (m.id !== currentUserId) {
+                    const opt = document.createElement('option');
+                    opt.value = m.id;
+                    opt.innerText = `🎯 Target: ${m.name}`;
+                    targetSelect.appendChild(opt);
+                }
+            });
+            targetSelect.value = currentSelection || 'none';
+            targetSelect.dispatchEvent(new Event('change'));
+
+            const todayStr = getLocalDateStr();
+            const hasVotedToday = me.lastVoteDate === todayStr;
+            const gaddarContainer = document.getElementById('gaddariFormContainer');
+            const votedMessage = document.getElementById('gaddariVotedMessage');
+            
+            if (isBlocked) {
+                gaddarContainer.innerHTML = `<div class="bg-rose-50 dark:bg-rose-950/30 p-4 rounded-xl text-center border border-rose-200 dark:border-rose-500/20"><i data-lucide="lock" class="w-6 h-6 text-rose-500 mx-auto mb-2 opacity-60"></i><p class="text-rose-700 dark:text-rose-400 font-bold text-xs tracking-wide">Voting Privileges Revoked</p></div>`;
+                votedMessage.classList.add('hidden');
+            } else if (hasVotedToday) {
+                gaddarContainer.classList.add('hidden');
+                votedMessage.classList.remove('hidden');
+            } else {
+                gaddarContainer.classList.remove('hidden');
+                votedMessage.classList.add('hidden');
+            }
+
+            renderPendingVotes(isBlocked);
+            renderPendingAppeals();
+            lucide.createIcons();
+        }
+
+        function getName(id) {
+            const m = localMembers.find(member => member.id === id);
+            return m ? m.name : 'Unknown';
+        }
+
+        // --- ADMIN PORTAL LOGIC WITH SUPER POWERS ---
+        window.openAdminPanel = () => {
+            const me = localMembers.find(m => m.id === currentUserId);
+            if(!me || !me.isAdmin) return;
+            updateAdminUI();
+            adminModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            lucide.createIcons();
+        }
+        window.closeAdminPanel = () => { adminModal.classList.add('hidden'); document.body.style.overflow = ''; }
+
+        window.loadAdminTargetStats = () => {
+            const targetId = document.getElementById('adminTarget').value;
+            if(!targetId) return;
+            const target = localMembers.find(m => m.id === targetId);
+            if(target) {
+                document.getElementById('adminValName').value = target.name || '';
+                document.getElementById('adminValSatvik').value = target.satvikCount || 0;
+                document.getElementById('adminValLahsun').value = target.lahsunCount || 0;
+                document.getElementById('adminValNonveg').value = target.nonvegCount || 0;
+                document.getElementById('adminValGaddari').value = target.gaddariIndex || 0;
+                document.getElementById('adminValShields').value = target.defenseShields || 0;
+                document.getElementById('adminValPassword').value = '';
+                document.getElementById('adminValIsAdmin').checked = target.isAdmin === true;
+            }
+        }
+
+        window.adminSaveTargetStats = async () => {
+            const targetId = document.getElementById('adminTarget').value;
+            if(!targetId) return;
+            const target = localMembers.find(m => m.id === targetId);
+            if(!target) return;
+
+            try {
+                const updates = {
+                    name: document.getElementById('adminValName').value.trim() || target.name,
+                    satvikCount: parseInt(document.getElementById('adminValSatvik').value) || 0,
+                    lahsunCount: parseInt(document.getElementById('adminValLahsun').value) || 0,
+                    nonvegCount: parseInt(document.getElementById('adminValNonveg').value) || 0,
+                    gaddariIndex: parseInt(document.getElementById('adminValGaddari').value) || 0,
+                    defenseShields: parseInt(document.getElementById('adminValShields').value) || 0,
+                    isAdmin: document.getElementById('adminValIsAdmin').checked
+                };
+
+                const newPass = document.getElementById('adminValPassword').value.trim();
+                if(newPass.length > 0) updates.password = newPass;
+                
+                await updateDoc(doc(db, basePath, 'members', targetId), updates);
+                showToast(`${target.name}'s Intel Successfully Overridden.`, "success");
+            } catch(err) {
+                showToast("Failed to override stats.", "error");
+            }
+        }
+
+        window.adminClearAlliance = async () => {
+            const targetId = document.getElementById('adminTarget').value;
+            if(!targetId) return;
+            const target = localMembers.find(m => m.id === targetId);
+            try {
+                const batch = writeBatch(db);
+                batch.update(doc(db, basePath, 'members', targetId), { allianceWith: null, allianceEndTime: 0 });
+                if(target.allianceWith) {
+                    batch.update(doc(db, basePath, 'members', target.allianceWith), { allianceWith: null, allianceEndTime: 0 });
+                }
+                await batch.commit();
+                showToast("Target's Alliance forcibly broken.", "success");
+            } catch(e) { showToast("Failed.", "error"); }
+        }
+
+        window.adminZeroInventory = async () => {
+            const targetId = document.getElementById('adminTarget').value;
+            if(!targetId) return;
+            const target = localMembers.find(m => m.id === targetId);
+            if(!target) return;
+
+            if(!confirm(`OVERLORD DECREE: Instantly wipe ALL weapons and shields for ${target.name} to 0?`)) return;
+
+            try {
+                await updateDoc(doc(db, basePath, 'members', targetId), {
+                    satvikCount: 0,
+                    lahsunCount: 0,
+                    nonvegCount: 0,
+                    defenseShields: 0
+                });
+                showToast(`${target.name}'s inventory has been wiped to 0.`, "success");
+                loadAdminTargetStats();
+            } catch(e) { showToast("Failed to wipe inventory.", "error"); }
+        }
+
+        window.adminBroadcast = async () => {
+            const text = document.getElementById('adminBroadcastText').value.trim();
+            if(!text) return;
+            try {
+                await addDoc(collection(db, basePath, 'squad_feed'), {
+                    text: text,
+                    authorId: 'SYSTEM', 
+                    timestamp: serverTimestamp(),
+                    likes: [],
+                    dislikes: [],
+                    isSystem: true
+                });
+                document.getElementById('adminBroadcastText').value = '';
+                showToast("System Broadcast deployed.", "success");
+            } catch (err) { showToast("Failed to broadcast.", "error"); }
+        };
+
+        window.adminDeleteVote = async (id) => {
+            if(!confirm("Overlord: Permanently delete this Gaddari Vote?")) return;
+            try { await deleteDoc(doc(db, basePath, 'gaddari_votes', id)); showToast("Vote Purged.", "success"); } catch(e) { showToast("Error", "error"); }
+        };
+
+        window.adminReverseVote = async (id) => {
+            if(!confirm("Overlord: Reverse this confirmed vote and restore 10% to target?")) return;
+            try {
+                const vote = localGaddariVotes.find(v => v.uid === id);
+                if(vote && vote.status === 'confirmed') {
+                    const target = localMembers.find(m => m.id === vote.targetId);
+                    if(target) {
+                        const rec = Math.max(0, target.gaddariIndex - 10);
+                        await updateDoc(doc(db, basePath, 'members', target.id), { gaddariIndex: rec });
+                    }
+                }
+                await updateDoc(doc(db, basePath, 'gaddari_votes', id), { status: 'reversed' });
+                showToast("Vote Reversed by Overlord.", "success");
+            } catch(e) { showToast("Error", "error"); }
+        };
+
+        window.adminDeleteAmEvent = async (id) => {
+            if(!confirm("Overlord: Permanently delete this Tribunal Request?")) return;
+            try { await deleteDoc(doc(db, basePath, 'am_events', id)); showToast("Request Purged.", "success"); } catch(e) { showToast("Error", "error"); }
+        };
+
+        function updateAdminUI() {
+            const targetSelect = document.getElementById('adminTarget');
+            targetSelect.innerHTML = '<option value="">Select Operative...</option>';
+            localMembers.forEach(m => {
+                targetSelect.innerHTML += `<option value="${m.id}">${m.name} (${m.gaddariIndex}%)</option>`;
+            });
+
+            const logContainer = document.getElementById('adminLogContainer');
+            logContainer.innerHTML = '';
+            
+            const allLogs = [];
+            localGaddariVotes.forEach(v => allLogs.push({type: 'gaddari', data: v, ts: getMillis(v.timestamp)}));
+            localEvents.forEach(e => allLogs.push({type: 'card', data: e, ts: getMillis(e.timestamp)}));
+            localFeed.forEach(w => allLogs.push({type: 'feed', data: w, ts: getMillis(w.timestamp)})); 
+            allLogs.sort((a,b) => b.ts - a.ts);
+
+            if(allLogs.length === 0) {
+                logContainer.innerHTML = `<p class="text-slate-400 dark:text-slate-500 text-center py-4 text-[10px]">No records found.</p>`;
+            } else {
+                allLogs.slice(0, 50).forEach(log => {
+                    if (log.type === 'gaddari') {
+                        const v = log.data;
+                        logContainer.innerHTML += `
+                            <div class="p-3 bg-white dark:bg-[#030712]/50 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm group">
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-[9px] font-bold text-rose-600 dark:text-rose-500 uppercase flex items-center gap-1"><i data-lucide="crosshair" class="w-3 h-3"></i> Gaddari Activity</span>
+                                    <span class="text-[9px] text-slate-400">${v.date} | ${v.status}</span>
+                                </div>
+                                <p class="text-[11px] text-slate-700 dark:text-slate-300"><span class="font-bold text-indigo-600 dark:text-indigo-400">${getName(v.voterId)}</span> voted vs <span class="font-bold text-rose-600 dark:text-rose-400">${v.targetId === 'none'?'Peace':getName(v.targetId)}</span></p>
+                                <p class="text-[10px] text-slate-600 dark:text-slate-400 italic mt-1 bg-slate-50 dark:bg-slate-900/50 p-1.5 rounded">"${v.reason}"</p>
+                                <div class="flex gap-2 mt-2 pt-2 border-t border-slate-100 dark:border-slate-800/60 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <button onclick="adminDeleteVote('${v.uid}')" class="text-[9px] bg-slate-100 dark:bg-slate-800 text-rose-600 dark:text-rose-400 px-2.5 py-1 rounded font-bold uppercase hover:bg-rose-100 dark:hover:bg-rose-900/30 transition-colors"><i data-lucide="trash-2" class="w-3 h-3 inline"></i> Delete</button>
+                                    ${v.status === 'confirmed' ? `<button onclick="adminReverseVote('${v.uid}')" class="text-[9px] bg-slate-100 dark:bg-slate-800 text-emerald-600 dark:text-emerald-400 px-2.5 py-1 rounded font-bold uppercase hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors"><i data-lucide="rotate-ccw" class="w-3 h-3 inline"></i> Reverse (-10%)</button>` : ''}
+                                </div>
+                            </div>`;
+                    } else if (log.type === 'card') {
+                        const e = log.data;
+                        const actionType = e.reportedBy === e.userId ? 'Requested' : 'Accused';
+                        logContainer.innerHTML += `
+                            <div class="p-3 bg-white dark:bg-[#030712]/50 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm group">
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-[9px] font-bold text-emerald-600 dark:text-emerald-500 uppercase flex items-center gap-1"><i data-lucide="gavel" class="w-3 h-3"></i> Card Event</span>
+                                    <span class="text-[9px] text-slate-400">${e.status}</span>
+                                </div>
+                                <p class="text-[11px] text-slate-700 dark:text-slate-300"><span class="font-bold text-indigo-600 dark:text-indigo-400">${getName(e.reportedBy)}</span> ${actionType} <span class="font-bold text-amber-600 dark:text-amber-400">${e.type}</span> on <span class="font-bold">${getName(e.userId)}</span></p>
+                                <p class="text-[10px] text-slate-600 dark:text-slate-400 italic mt-1 bg-slate-50 dark:bg-slate-900/50 p-1.5 rounded">"${e.reason}"</p>
+                                <div class="flex gap-2 mt-2 pt-2 border-t border-slate-100 dark:border-slate-800/60 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <button onclick="adminDeleteAmEvent('${e.uid}')" class="text-[9px] bg-slate-100 dark:bg-slate-800 text-rose-600 dark:text-rose-400 px-2.5 py-1 rounded font-bold uppercase hover:bg-rose-100 dark:hover:bg-rose-900/30 transition-colors"><i data-lucide="trash-2" class="w-3 h-3 inline"></i> Purge Request</button>
+                                </div>
+                            </div>`;
+                    } else if (log.type === 'feed') {
+                        const w = log.data;
+                        logContainer.innerHTML += `
+                            <div class="p-3 bg-white dark:bg-[#030712]/50 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm group">
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-[9px] font-bold text-blue-600 dark:text-blue-500 uppercase flex items-center gap-1"><i data-lucide="message-square" class="w-3 h-3"></i> Feed Post</span>
+                                </div>
+                                <p class="text-[11px] text-slate-700 dark:text-slate-300">Author: <span class="font-bold text-indigo-600 dark:text-indigo-400">${getName(w.authorId)}</span></p>
+                                <p class="text-[10px] text-slate-600 dark:text-slate-400 italic mt-1 bg-slate-50 dark:bg-slate-900/50 p-1.5 rounded">"${w.text}"</p>
+                                <div class="flex gap-2 mt-2 pt-2 border-t border-slate-100 dark:border-slate-800/60 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <button onclick="deletePost('${w.uid}')" class="text-[9px] bg-slate-100 dark:bg-slate-800 text-rose-600 dark:text-rose-400 px-2.5 py-1 rounded font-bold uppercase hover:bg-rose-100 dark:hover:bg-rose-900/30 transition-colors"><i data-lucide="trash-2" class="w-3 h-3 inline"></i> Delete Post</button>
+                                </div>
+                            </div>`;
+                    }
+                });
+            }
+        }
+
+        window.adminGlobalWipe = async () => {
+            if(prompt("NUCLEAR OPTION: Type 'WIPE' to confirm.") !== "WIPE") return;
+            try {
+                const batch = writeBatch(db);
+                localMembers.forEach(m => {
+                    const ref = doc(db, basePath, 'members', m.id);
+                    batch.update(ref, { satvikCount: 2, lahsunCount: 0, nonvegCount: 0, gaddariIndex: 0, location: 'Base HQ', avatarBase64: '', appOpens: 0, allianceWith: null, allianceEndTime: 0, defenseShields: 0, voteStreak: 0, achievements: { trusted: false, weaponsMaster: false, diplomat: false, merciful: false } });
+                });
+                localEvents.forEach(e => batch.delete(doc(db, basePath, 'am_events', e.uid)));
+                localGaddariVotes.forEach(v => batch.delete(doc(db, basePath, 'gaddari_votes', v.uid)));
+                localFeed.forEach(w => batch.delete(doc(db, basePath, 'squad_feed', w.uid)));
+                await batch.commit();
+                showToast("SYSTEM WIPE SUCCESSFUL.", "success");
+                closeAdminPanel();
+            } catch (err) { showToast(`Wipe failed`, "error"); }
+        }
+
+        // --- PUBLIC PROFILE LOGIC & CUSTOMIZATION ---
+        window.switchProfileTab = (tab) => {
+            document.getElementById('tabBtnGaddari').className = `px-4 py-2.5 font-bold text-xs tracking-wide border-b-2 transition-all flex items-center gap-1.5 ${tab === 'gaddari' ? 'tab-active' : 'tab-inactive'}`;
+            document.getElementById('tabBtnArsenal').className = `px-4 py-2.5 font-bold text-xs tracking-wide border-b-2 transition-all flex items-center gap-1.5 ${tab === 'arsenal' ? 'tab-active' : 'tab-inactive'}`;
+            document.getElementById('tabContentGaddari').style.display = tab === 'gaddari' ? 'block' : 'none';
+            document.getElementById('tabContentArsenal').style.display = tab === 'arsenal' ? 'block' : 'none';
+        };
+
+        window.toggleEditProfile = () => {
+            const normalView = document.getElementById('profileNormalView');
+            const editView = document.getElementById('profileEditView');
+            if (normalView.classList.contains('hidden')) {
+                normalView.classList.remove('hidden');
+                editView.classList.add('hidden');
+            } else {
+                normalView.classList.add('hidden');
+                editView.classList.remove('hidden');
+                const me = localMembers.find(m => m.id === currentUserId);
+                document.getElementById('editLocationInput').value = me.location || '';
+                document.getElementById('editOldPass').value = '';
+                document.getElementById('editNewPass').value = '';
+                
+                const preview = document.getElementById('editAvatarPreview');
+                if(me.avatarBase64) {
+                    preview.src = me.avatarBase64;
+                    preview.classList.remove('hidden');
+                    document.getElementById('editAvatarIcon').classList.add('hidden');
+                } else {
+                    preview.src = '';
+                    preview.classList.add('hidden');
+                    document.getElementById('editAvatarIcon').classList.remove('hidden');
+                }
+                preview.removeAttribute('data-base64');
+            }
+        }
+
+        window.handleAvatarUpload = (event) => {
+            const file = event.target.files[0];
+            if(!file) return;
+
+            const reader = new FileReader();
+            reader.onloadend = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const MAX_SIZE = 120;
+                    let width = img.width;
+                    let height = img.height;
+                    
+                    if (width > height) {
+                        if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; }
+                    } else {
+                        if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; }
+                    }
+                    
+                    canvas.width = Math.max(1, width); 
+                    canvas.height = Math.max(1, height);
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    const base64 = canvas.toDataURL('image/jpeg', 0.4);
+                    
+                    const preview = document.getElementById('editAvatarPreview');
+                    preview.src = base64;
+                    preview.classList.remove('hidden');
+                    document.getElementById('editAvatarIcon').classList.add('hidden');
+                    preview.setAttribute('data-base64', base64);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        window.saveProfileEdits = async () => {
+            const loc = document.getElementById('editLocationInput').value.trim() || 'Base HQ';
+            const imgEl = document.getElementById('editAvatarPreview');
+            const base64 = imgEl.getAttribute('data-base64');
+            
+            try {
+                let updates = { location: loc };
+                if (base64 && base64.startsWith('data:image')) {
+                    if(base64.length > 500000) { showToast("Image still too large.", "error"); return; }
+                    updates.avatarBase64 = base64;
+                }
+                
+                await updateDoc(doc(db, basePath, 'members', currentUserId), updates);
+                showToast("Profile intel updated.", "success");
+                toggleEditProfile();
+                updateProfileModalData();
+            } catch(e) { showToast("Failed to save profile.", "error"); }
+        }
+
+        window.changePassword = async () => {
+            const oldP = document.getElementById('editOldPass').value;
+            const newP = document.getElementById('editNewPass').value;
+            if(!oldP || !newP) { showToast("Both PIN fields required.", "warning"); return; }
+
+            const me = localMembers.find(m => m.id === currentUserId);
+            if(me.password !== oldP) { showToast("Current PIN incorrect.", "error"); return; }
+            if(newP.length < 4) { showToast("New PIN must be at least 4 characters.", "error"); return; }
+
+            try {
+                await updateDoc(doc(db, basePath, 'members', currentUserId), { password: newP });
+                document.getElementById('editOldPass').value = '';
+                document.getElementById('editNewPass').value = '';
+                showToast("Security PIN Updated Successfully.", "success");
+            } catch(e) { showToast("Failed to update PIN.", "error"); }
+        }
+
+        window.openProfileModal = (memberId) => {
+            activeProfileId = memberId;
+            document.getElementById('profileNormalView').classList.remove('hidden');
+            document.getElementById('profileEditView').classList.add('hidden');
+            updateProfileModalData();
+            switchProfileTab('gaddari');
+            profileModal.classList.remove('hidden');
+            lucide.createIcons();
+        };
+
+        window.closeProfileModal = () => { profileModal.classList.add('hidden'); activeProfileId = null; };
+
+        function updateProfileModalData() {
+            if(!activeProfileId) return;
+            const member = localMembers.find(m => m.id === activeProfileId);
+            const me = localMembers.find(m => m.id === currentUserId);
+            if(!member || !me) return;
+
+            const isMe = member.id === currentUserId;
+            const isAdmin = member.isAdmin;
+
+            if (isMe) document.getElementById('btnEditProfile').classList.remove('hidden');
+            else document.getElementById('btnEditProfile').classList.add('hidden');
+
+            document.getElementById('profileModalName').innerText = member.name;
+            document.getElementById('profileLocation').innerText = member.location || 'Base HQ';
+            document.getElementById('profileAlliance').innerText = member.allianceWith ? `Allied to ${getName(member.allianceWith)}` : 'No Alliance';
+            document.getElementById('profileModalStreak').innerText = member.voteStreak || 0;
+            
+            // Achievements
+            const achs = member.achievements || { trusted: false, weaponsMaster: false, diplomat: false, merciful: false };
+            document.getElementById('ach_trusted').className = achs.trusted ? 'achievement-unlocked flex items-center gap-1.5 bg-emerald-50 dark:bg-emerald-900/30 px-2.5 py-1.5 rounded-lg border border-emerald-200 dark:border-emerald-500/50 shrink-0 transition-all duration-300 shadow-sm' : 'achievement-locked flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 shrink-0 transition-all duration-300';
+            document.getElementById('ach_weaponsMaster').className = achs.weaponsMaster ? 'achievement-unlocked flex items-center gap-1.5 bg-indigo-50 dark:bg-indigo-900/30 px-2.5 py-1.5 rounded-lg border border-indigo-200 dark:border-indigo-500/50 shrink-0 transition-all duration-300 shadow-sm' : 'achievement-locked flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 shrink-0 transition-all duration-300';
+            document.getElementById('ach_diplomat').className = achs.diplomat ? 'achievement-unlocked flex items-center gap-1.5 bg-amber-50 dark:bg-amber-900/30 px-2.5 py-1.5 rounded-lg border border-amber-200 dark:border-amber-500/50 shrink-0 transition-all duration-300 shadow-sm' : 'achievement-locked flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 shrink-0 transition-all duration-300';
+            document.getElementById('ach_merciful').className = achs.merciful ? 'achievement-unlocked flex items-center gap-1.5 bg-rose-50 dark:bg-rose-900/30 px-2.5 py-1.5 rounded-lg border border-rose-200 dark:border-rose-500/50 shrink-0 transition-all duration-300 shadow-sm' : 'achievement-locked flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 shrink-0 transition-all duration-300';
+
+            const gaddarEl = document.getElementById('profileModalGaddar');
+            gaddarEl.innerText = `${member.gaddariIndex}% Gaddar`;
+            
+            const avatarContainer = document.getElementById('profileAvatarContainer');
+            const glow = document.getElementById('profileGlow');
+            const adminBadge = document.getElementById('profileModalAdminBadge');
+            const bribeSection = document.getElementById('bribeSection');
+            const bribeButtons = document.getElementById('bribeButtons');
+
+            if (isMe) {
+                bribeSection.classList.add('hidden');
+            } else {
+                bribeSection.classList.remove('hidden');
+                let actionsHtml = '';
+                if(me.allianceWith === member.id) {
+                    actionsHtml += `<button onclick="transferItem('satvik')" class="flex-1 bg-emerald-100 text-emerald-700 hover:bg-emerald-200 transition-colors py-2 rounded-lg text-[9px] font-bold uppercase border border-emerald-200">Send 1 Satvik</button>`;
+                    actionsHtml += `<button onclick="transferItem('lahsun')" class="flex-1 bg-amber-100 text-amber-700 hover:bg-amber-200 transition-colors py-2 rounded-lg text-[9px] font-bold uppercase border border-amber-200">Send 1 Lahsun</button>`;
+                    actionsHtml += `<button onclick="breakAlliance()" class="flex-1 bg-rose-100 text-rose-700 hover:bg-rose-200 transition-colors py-2 rounded-lg text-[9px] font-bold uppercase border border-rose-200">Break Alliance (Cost 1 Non-Veg)</button>`;
+                } else {
+                    if(!me.allianceWith && !member.allianceWith) {
+                        actionsHtml += `<button onclick="proposeAlliance('${member.id}')" class="flex-1 bg-indigo-100 text-indigo-700 hover:bg-indigo-200 transition-colors py-2 rounded-lg text-[9px] font-bold uppercase border border-indigo-200 shadow-sm"><i data-lucide="link" class="w-3 h-3 inline"></i> Propose Alliance</button>`;
+                    }
+                }
+                bribeButtons.innerHTML = actionsHtml;
+                if(actionsHtml === '') bribeSection.classList.add('hidden');
+            }
+
+            avatarContainer.className = "w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center shadow-md z-10 relative overflow-hidden ";
+            
+            if(member.avatarBase64) {
+                avatarContainer.innerHTML = `<img src="${member.avatarBase64}" class="w-full h-full object-cover">`;
+                avatarContainer.className += (isAdmin ? "border-2 border-amber-400" : (member.gaddariIndex > 70 ? "border-2 border-rose-500" : "border border-slate-300"));
+            } else {
+                avatarContainer.innerHTML = `<i data-lucide="${isAdmin ? 'crown' : (member.gaddariIndex > 70 ? 'shield-alert' : 'user')}" class="w-8 h-8 ${isAdmin?'text-amber-500':'text-slate-500'}" id="profileAvatarIcon"></i>`;
+                if(isAdmin) {
+                    avatarContainer.className += "bg-amber-100 dark:bg-amber-950/40 border-2 border-amber-400 dark:border-amber-500 text-amber-600 dark:text-amber-400 shadow-lg";
+                } else if(member.gaddariIndex > 70) {
+                    avatarContainer.className += "bg-rose-100 dark:bg-rose-950/40 border-2 border-rose-400 dark:border-rose-500 text-rose-600 dark:text-rose-400 shadow-lg";
+                } else {
+                    avatarContainer.className += "bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400";
+                }
+            }
+
+            if(isAdmin) {
+                glow.className = "absolute top-0 right-0 w-48 h-48 bg-amber-500/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none";
+                adminBadge.classList.remove('hidden');
+                gaddarEl.className = "text-slate-600 dark:text-slate-300 bg-slate-200 dark:bg-slate-800/80 px-2 py-1 rounded border border-slate-300 dark:border-slate-700";
+            } else if(member.gaddariIndex > 70) {
+                glow.className = "absolute top-0 right-0 w-48 h-48 bg-rose-500/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none";
+                adminBadge.classList.add('hidden');
+                gaddarEl.className = "text-rose-600 dark:text-rose-400 bg-rose-100 dark:bg-rose-500/10 px-2 py-1 rounded border border-rose-200 dark:border-rose-500/20 animate-pulse-slow";
+            } else {
+                glow.className = "absolute top-0 right-0 w-48 h-48 bg-indigo-500/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none";
+                adminBadge.classList.add('hidden');
+                gaddarEl.className = "text-slate-600 dark:text-slate-300 bg-slate-200 dark:bg-slate-800/80 px-2 py-1 rounded border border-slate-300 dark:border-slate-700";
+            }
+
+            const reportSection = document.getElementById('profileReportSection');
+            if (isMe || isAdmin) reportSection.classList.add('hidden');
+            else {
+                reportSection.classList.remove('hidden');
+                const select = document.getElementById('reportCardType');
+                select.innerHTML = '';
+                if (member.satvikCount > 0) select.innerHTML += `<option value="satvik">Satvik Protocol Violation</option>`;
+                if (member.lahsunCount > 0) select.innerHTML += `<option value="lahsun">Lahsun Pyaaj Strike Violation</option>`;
+                if (member.nonvegCount > 0) select.innerHTML += `<option value="nonveg">Non-Veg Deployment Violation</option>`;
+                
+                if (select.innerHTML === '') {
+                    select.innerHTML = `<option value="">(No cards to report)</option>`;
+                    document.getElementById('reportSubmitBtn').disabled = true;
+                    document.getElementById('reportSubmitBtn').classList.add('opacity-50', 'cursor-not-allowed');
+                } else {
+                    document.getElementById('reportSubmitBtn').disabled = false;
+                    document.getElementById('reportSubmitBtn').classList.remove('opacity-50', 'cursor-not-allowed');
+                    document.getElementById('reportSubmitBtn').onclick = () => submitAccusation(member.id);
+                }
+            }
+
+            const historyList = document.getElementById('profileHistoryList');
+            historyList.innerHTML = '';
+            const myEvents = localEvents.filter(e => e.userId === member.id && e.status === 'confirmed');
+            if(myEvents.length === 0) {
+                historyList.innerHTML = `<div class="text-center py-6 bg-slate-50 dark:bg-[#030712]/50 rounded-xl border border-slate-200 dark:border-slate-800"><i data-lucide="shield-check" class="w-6 h-6 mx-auto mb-2 text-slate-400"></i><p class="text-[10px] font-medium text-slate-500">Clean record.</p></div>`;
+            } else {
+                myEvents.forEach(event => {
+                    const configs = { satvik: { name: 'Satvik', color: 'emerald', icon: 'leaf' }, lahsun: { name: 'Lahsun Pyaaj', color: 'amber', icon: 'flame' }, nonveg: { name: 'Non-Veg', color: 'rose', icon: 'skull' } };
+                    const conf = configs[event.type];
+                    let dateStr = "Unknown Date";
+                    if(event.timestamp) {
+                        const ms = getMillis(event.timestamp);
+                        if (ms) {
+                            const date = new Date(ms);
+                            dateStr = `${date.getDate()} ${date.toLocaleString('default', { month: 'short' })}, ${date.getFullYear()}`;
+                        }
+                    }
+                    historyList.innerHTML += `
+                        <div class="bg-white dark:bg-slate-900/50 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
+                            <div class="flex justify-between items-center mb-2">
+                                <div class="flex items-center gap-1.5 bg-${conf.color}-50 dark:bg-${conf.color}-500/10 border border-${conf.color}-200 dark:border-${conf.color}-500/30 px-2 py-0.5 rounded text-${conf.color}-600 dark:text-${conf.color}-400 text-[9px] font-bold uppercase">
+                                    <i data-lucide="${conf.icon}" class="w-3 h-3"></i> ${conf.name}
+                                </div>
+                                <span class="text-[8px] text-slate-500 dark:text-slate-400 font-bold">${dateStr}</span>
+                            </div>
+                            <p class="text-xs text-slate-700 dark:text-slate-300 italic">"${event.reason}"</p>
+                        </div>`;
+                });
+            }
+
+            const gaddariList = document.getElementById('profileGaddariList');
+            gaddariList.innerHTML = '';
+            const myCharges = localGaddariVotes.filter(v => v.targetId === member.id && v.targetId !== 'none');
+            
+            if(myCharges.length === 0) {
+                gaddariList.innerHTML = `<div class="text-center py-6 bg-slate-50 dark:bg-[#030712]/50 rounded-xl border border-slate-200 dark:border-slate-800"><i data-lucide="dove" class="w-6 h-6 mx-auto mb-2 text-slate-400"></i><p class="text-[10px] font-medium text-slate-500">Exemplary operative.</p></div>`;
+                document.getElementById('appealHintBox').classList.add('hidden');
+            } else {
+                let hasActiveCharge = false;
+                myCharges.forEach(charge => {
+                    let dateStr = charge.date;
+                    const status = charge.status || 'pending'; 
+                    let statusHtml = '';
+                    let actionHtml = '';
+
+                    if (status === 'pending') {
+                        statusHtml = `<span class="bg-indigo-100 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-500/20 px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-widest animate-pulse">In Tribunal</span>`;
+                    } else if (status === 'confirmed') {
+                        hasActiveCharge = true;
+                        statusHtml = `<span class="bg-rose-100 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-500/20 px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-widest">+10% Penalty</span>`;
+                        if (isMe) actionHtml = `<button onclick="appealCharge('${charge.uid}')" class="mt-2 w-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-indigo-600 dark:text-indigo-400 text-[10px] font-bold py-2 rounded-lg border border-indigo-200 dark:border-indigo-500/50 shadow-sm transition-colors flex items-center justify-center gap-1.5"><i data-lucide="scale" class="w-3 h-3"></i> Appeal Charge</button>`;
+                    } else if (status === 'appealed') {
+                        statusHtml = `<span class="bg-amber-100 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20 px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-widest animate-pulse">Appeal Pending</span>`;
+                    } else if (status === 'reversed') {
+                        statusHtml = `<span class="bg-emerald-100 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20 px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-widest">Reversed (Forgiven)</span>`;
+                    } else if (status === 'rejected') {
+                        statusHtml = `<span class="bg-rose-200 dark:bg-rose-950/50 text-rose-700 dark:text-rose-500 border border-rose-300 dark:border-rose-900 px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-widest">Charge Rejected</span>`;
+                    }
+
+                    gaddariList.innerHTML += `
+                        <div class="bg-white dark:bg-slate-900/50 p-3.5 rounded-xl border ${status === 'confirmed' ? 'border-rose-200 dark:border-rose-500/30' : 'border-slate-200 dark:border-slate-800'} relative overflow-hidden shadow-sm">
+                            ${status === 'confirmed' ? '<div class="absolute top-0 left-0 w-1 h-full bg-rose-500"></div>' : ''}
+                            <div class="flex justify-between items-start mb-2 ${status === 'confirmed' ? 'pl-2' : ''}">
+                                <div>
+                                    <p class="text-[9px] text-slate-500 font-bold uppercase mb-0.5">Accused by <span class="text-indigo-600 dark:text-indigo-300">${getName(charge.voterId)}</span></p>
+                                    <span class="text-[10px] text-slate-400">${dateStr}</span>
+                                </div>
+                                ${statusHtml}
+                            </div>
+                            <div class="bg-slate-50 dark:bg-[#030712]/80 rounded-lg p-2 border border-slate-100 dark:border-slate-800 relative ${status === 'confirmed' ? 'ml-2' : ''}">
+                                <p class="text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-0.5">Evidence:</p>
+                                <p class="text-xs text-slate-700 dark:text-slate-300 italic">"${charge.reason}"</p>
+                            </div>
+                            ${actionHtml}
+                        </div>`;
+                });
+                if(isMe && hasActiveCharge) document.getElementById('appealHintBox').classList.remove('hidden');
+                else document.getElementById('appealHintBox').classList.add('hidden');
+            }
+            lucide.createIcons();
+        }
+
+        window.submitAccusation = async (targetId) => {
+            const type = document.getElementById('reportCardType').value;
+            const reason = document.getElementById('reportReason').value.trim();
+            if (!type || !reason) { showToast("Evidence required.", 'error'); return; }
+            try {
+                await addDoc(collection(db, basePath, 'am_events'), {
+                    userId: targetId, reportedBy: currentUserId, type: type, reason: reason,
+                    status: 'pending', timestamp: serverTimestamp(), votes: { [currentUserId]: { decision: true, reason: 'Initial Request' } }
+                });
+                closeProfileModal();
+                showToast("Accusation filed to Tribunal.", 'success');
+            } catch (err) { showToast("Failed to file.", 'error'); }
+        };
+
+        window.openAmModal = (type) => {
+            const me = localMembers.find(m => m.id === currentUserId);
+            if ((me.gaddariIndex > 70) && !me.isAdmin) return; 
+            
+            const counts = { satvik: me.satvikCount, lahsun: me.lahsunCount, nonveg: me.nonvegCount };
+            if (counts[type] <= 0) { showToast(`Inventory Depleted`, 'warning'); return; }
+
+            currentAmType = type;
+            const modalConfigs = { satvik: { title: 'Satvik Protocol', icon: 'leaf', color: 'emerald' }, lahsun: { title: 'Lahsun Pyaaj Strike', icon: 'flame', color: 'amber' }, nonveg: { title: 'Non-Veg Annihilation', icon: 'skull', color: 'rose' } };
+            const conf = modalConfigs[type];
+            
+            document.getElementById('amModalTitle').innerText = conf.title;
+            document.getElementById('amModalTitle').className = `text-2xl font-black tracking-tight text-${conf.color}-600 dark:text-${conf.color}-400`;
+            const iconEl = document.getElementById('amModalIcon');
+            iconEl.setAttribute('data-lucide', conf.icon);
+            iconEl.className = `w-6 h-6 text-${conf.color}-600 dark:text-${conf.color}-400`;
+            document.getElementById('amModalIconBg').className = `p-3 rounded-xl bg-${conf.color}-100 dark:bg-${conf.color}-500/10 border border-${conf.color}-200 dark:border-${conf.color}-500/30`;
+            document.getElementById('amReasonInput').value = '';
+            document.getElementById('amModal').classList.remove('hidden');
+            lucide.createIcons();
+        };
+
+        window.closeAmModal = () => { document.getElementById('amModal').classList.add('hidden'); currentAmType = null; };
+
+        document.getElementById('amSubmitBtn').addEventListener('click', async () => {
+            const reason = document.getElementById('amReasonInput').value.trim();
+            if (!reason) { showToast("Justification required.", 'error'); return; }
+            try {
+                const me = localMembers.find(m => m.id === currentUserId);
+                let initialStatus = 'pending';
+                if(me && me.isAdmin) {
+                    initialStatus = 'confirmed';
+                    const countKey = `${currentAmType}Count`;
+                    if (me[countKey] > 0) await updateDoc(doc(db, basePath, 'members', me.id), { [countKey]: me[countKey] - 1 });
+                    showToast("Overlord Override executed.", 'success');
+                } else showToast("Submitted to Tribunal.", 'success');
+
+                await addDoc(collection(db, basePath, 'am_events'), {
+                    userId: currentUserId, reportedBy: currentUserId, type: currentAmType,
+                    reason: reason, status: initialStatus, timestamp: serverTimestamp(), votes: { [currentUserId]: { decision: true, reason: 'Initial Request' } }
+                });
+                closeAmModal();
+            } catch (err) { showToast("Failed.", 'error'); }
+        });
+
+        // --- TRIBUNAL & APPEALS (UNIFIED) ---
+        function renderPendingVotes(isBlocked) {
+            const container = document.getElementById('pendingVotesContainer');
+            container.innerHTML = '';
+            
+            const pendingEvents = localEvents.filter(e => e.status === 'pending').map(e => ({...e, category: 'card'}));
+            const pendingGaddari = localGaddariVotes.filter(v => v.status === 'pending' && v.targetId !== 'none').map(v => ({...v, category: 'gaddari'}));
+            const combinedPending = [...pendingEvents, ...pendingGaddari].sort((a,b) => getMillis(b.timestamp) - getMillis(a.timestamp));
+            
+            const badgeCount = combinedPending.length;
+            const badge = document.getElementById('tribunalBadgeCount');
+            if (badgeCount > 0) { badge.classList.remove('hidden'); badge.innerText = badgeCount; } 
+            else badge.classList.add('hidden');
+            
+            if (combinedPending.length === 0) {
+                container.innerHTML = `<div class="bg-slate-50 dark:bg-slate-900/30 border border-slate-200 dark:border-slate-800/50 rounded-xl p-6 text-center"><i data-lucide="check-circle" class="w-6 h-6 text-slate-400 mx-auto mb-2 opacity-50"></i><p class="text-xs font-medium text-slate-500">All squad requests resolved.</p></div>`;
+                return;
+            }
+
+            combinedPending.forEach(event => {
+                const isGaddari = event.category === 'gaddari';
+                const targetId = isGaddari ? event.targetId : event.userId;
+                const reporterId = isGaddari ? event.voterId : event.reportedBy;
+                
+                const targetUser = localMembers.find(m => m.id === targetId) || { name: 'Unknown', avatarBase64: '' };
+                const isAccusation = reporterId && reporterId !== targetId;
+                const reporterName = isAccusation ? getName(reporterId) : targetUser.name;
+                
+                let conf = { name: 'Gaddari Accusation', color: 'rose', icon: 'crosshair', reqApprovals: 3 };
+                if (!isGaddari) {
+                    const configs = { satvik: { name: 'Satvik Request', color: 'emerald', icon: 'leaf' }, lahsun: { name: 'Lahsun Pyaaj', color: 'amber', icon: 'flame' }, nonveg: { name: 'Non-Veg Strike', color: 'rose', icon: 'skull' } };
+                    conf = { ...configs[event.type], reqApprovals: 3 };
+                }
+
+                const hasVoted = event.votes && event.votes[currentUserId] !== undefined;
+                let approves = 0, rejects = 0;
+                let totalVotes = 0;
+                
+                let liveVotesHtml = '';
+                if (event.votes) { 
+                    liveVotesHtml = `<div class="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800/60 space-y-1.5"><p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1"><i data-lucide="eye" class="w-3 h-3 inline"></i> Live Vote Ledger</p>`;
+                    Object.keys(event.votes).forEach(uid => { 
+                        const vObj = event.votes[uid];
+                        const decision = typeof vObj === 'object' ? vObj.decision : vObj;
+                        const reason = typeof vObj === 'object' && vObj.reason ? vObj.reason : 'No proof attached';
+                        if(decision) approves++; else rejects++; 
+                        totalVotes++;
+
+                        liveVotesHtml += `<p class="text-[10px] text-slate-600 dark:text-slate-400 leading-tight"><span class="font-bold ${decision ? 'text-emerald-500' : 'text-rose-500'}">${getName(uid)} (${decision ? 'Approve' : 'Reject'}):</span> "${reason}"</p>`;
+                    }); 
+                    liveVotesHtml += `</div>`;
+                }
+
+                const div = document.createElement('div');
+                div.className = 'bg-white dark:bg-[#080b18] p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden';
+                if (isGaddari) div.innerHTML += '<div class="absolute top-0 left-0 w-1 h-full bg-rose-500 opacity-50"></div>';
+                
+                let actionsHtml = '';
+
+                if (isBlocked) {
+                    actionsHtml = `<div class="mt-3 p-2 rounded-lg bg-rose-50 dark:bg-rose-950/20 text-center border border-rose-200 dark:border-rose-900/50"><p class="text-[9px] text-rose-600 dark:text-rose-500 font-bold uppercase">Voting Disabled</p></div>`;
+                } else if (hasVoted) {
+                    const myVoteObj = event.votes[currentUserId];
+                    const decision = typeof myVoteObj === 'object' ? myVoteObj.decision : myVoteObj;
+                    const voteText = decision ? '<span class="text-emerald-500 dark:text-emerald-400">Approved</span>' : '<span class="text-rose-500 dark:text-rose-400">Rejected</span>';
+                    actionsHtml = `<div class="mt-3 p-2 rounded-lg bg-slate-50 dark:bg-slate-900/50 text-center border border-slate-200 dark:border-slate-800"><p class="text-[9px] text-slate-500 dark:text-slate-400 font-bold uppercase">Your Verdict: ${voteText}</p></div>`;
+                } else if (targetId === currentUserId && !isAccusation) {
+                    actionsHtml = `<div class="mt-3 p-2 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 text-center border border-indigo-200 dark:border-indigo-500/20"><p class="text-[9px] text-indigo-600 dark:text-indigo-400 font-bold uppercase animate-pulse">Awaiting Squad Approvals</p></div>`;
+                } else {
+                    actionsHtml = `
+                        <div class="mt-3">
+                            <input type="text" id="voteReason_${event.uid}" placeholder="Mandatory: Attach evidence/proof..." class="w-full text-xs bg-slate-50 dark:bg-[#0f1423] border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg mb-2.5 outline-none focus:border-indigo-500 transition-colors">
+                            <div class="flex gap-2">
+                                <button onclick="castTribunalVote('${event.category}', '${event.uid}', true)" class="flex-1 bg-emerald-50 dark:bg-emerald-500/10 hover:bg-emerald-100 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/30 py-2.5 rounded-lg text-[10px] font-bold uppercase flex justify-center items-center gap-1.5 transition-colors shadow-sm"><i data-lucide="thumbs-up" class="w-3.5 h-3.5"></i> Approve</button>
+                                <button onclick="castTribunalVote('${event.category}', '${event.uid}', false)" class="flex-1 bg-slate-50 dark:bg-slate-500/10 hover:bg-slate-100 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-500/30 py-2.5 rounded-lg text-[10px] font-bold uppercase flex justify-center items-center gap-1.5 transition-colors shadow-sm"><i data-lucide="thumbs-down" class="w-3.5 h-3.5"></i> Reject</button>
+                            </div>
+                        </div>`;
+                }
+                
+                let avatarHtml = targetUser.avatarBase64 ? `<img src="${targetUser.avatarBase64}" class="w-full h-full object-cover">` : `<i data-lucide="${isAccusation ? 'megaphone' : 'user'}" class="w-3.5 h-3.5"></i>`;
+                let padClass = isGaddari ? "pl-2" : "";
+                
+                const confidencePercent = Math.min(100, Math.round((totalVotes / localMembers.length) * 100));
+
+                div.innerHTML = `
+                    <div class="flex justify-between items-start mb-2 ${padClass}">
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden border ${isAccusation ? 'bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-500/50 text-rose-600 dark:text-rose-400' : 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400'}">
+                                ${avatarHtml}
+                            </div>
+                            <div>
+                                ${isAccusation ? `<span class="text-rose-600 dark:text-rose-400 font-bold text-xs block">${reporterName} <span class="text-slate-500 font-medium text-[9px]">accuses</span> ${targetUser.name}</span>` : `<span class="font-bold text-xs text-slate-800 dark:text-slate-200 block">${targetUser.name}</span>`}
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1 bg-${conf.color}-50 dark:bg-${conf.color}-500/10 border border-${conf.color}-200 dark:border-${conf.color}-500/30 px-1.5 py-0.5 rounded shrink-0">
+                            <span class="text-[8px] font-black text-${conf.color}-600 dark:text-${conf.color}-400 uppercase tracking-widest">${conf.name}</span>
+                        </div>
+                    </div>
+                    <div class="bg-slate-50 dark:bg-slate-900/60 rounded-lg p-2 border border-slate-100 dark:border-slate-800 mb-2 ${padClass}">
+                        <p class="text-[10px] text-slate-700 dark:text-slate-300 italic font-medium">"${event.reason}"</p>
+                    </div>
+                    <div class="text-[9px] bg-slate-100 dark:bg-slate-900/80 p-1.5 rounded-lg flex flex-col gap-1.5 text-slate-500 font-bold ${padClass}">
+                        <div class="flex justify-between">
+                            <span>Approvals: <span class="text-emerald-500 dark:text-emerald-400">${approves}</span> / <span class="text-rose-500 dark:text-rose-400">${rejects} Rejects</span></span>
+                            <span class="text-indigo-500 dark:text-indigo-400">${conf.reqApprovals} Required</span>
+                        </div>
+                        <div class="w-full bg-slate-200 dark:bg-slate-700 h-1 rounded-full overflow-hidden" title="Confidence: ${totalVotes} voted">
+                            <div class="h-full bg-indigo-400 dark:bg-indigo-500 transition-all" style="width: ${confidencePercent}%"></div>
+                        </div>
+                    </div>
+                    ${liveVotesHtml}
+                    ${actionsHtml}
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        window.castTribunalVote = async (category, eventId, isApprove) => {
+            try {
+                const collectionName = category === 'card' ? 'am_events' : 'gaddari_votes';
+                const eventRef = doc(db, basePath, collectionName, eventId);
+                const list = category === 'card' ? localEvents : localGaddariVotes;
+                const event = list.find(e => e.uid === eventId);
+                if (!event) return;
+
+                const inputEl = document.getElementById(`voteReason_${eventId}`);
+                const voteReason = inputEl ? inputEl.value.trim() : '';
+
+                // NEW RULE: PROOF REQUIRED TO APPROVE
+                if (isApprove && !voteReason) {
+                    showToast("Proof / Reason is absolutely mandatory to approve.", "error");
+                    return;
+                }
+
+                let newStatus = 'pending';
+                let updatedVotes = { ...(event.votes || {}), [currentUserId]: { decision: isApprove, reason: voteReason || 'No proof given' } };
+
+                let approves = 0, rejects = 0;
+                Object.values(updatedVotes).forEach(v => { 
+                    const decision = typeof v === 'object' ? v.decision : v;
+                    if(decision) approves++; else rejects++; 
+                });
+                
+                // NEW RULE: 3 APPROVALS FOR EVERYTHING
+                const reqApprovals = 3; 
+
+                if (approves >= reqApprovals) newStatus = 'confirmed';
+                else if (rejects >= reqApprovals) newStatus = 'rejected';
+
+                let memberUpdates = {};
+                if (category === 'gaddari') {
+                    const todayStr = getLocalDateStr();
+                    const me = localMembers.find(m => m.id === currentUserId);
+                    if (me.lastVoteDate !== todayStr) {
+                        const yesterdayDate = new Date();
+                        yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+                        const yesterdayStr = `${yesterdayDate.getFullYear()}-${String(yesterdayDate.getMonth()+1).padStart(2,'0')}-${String(yesterdayDate.getDate()).padStart(2,'0')}`;
+
+                        let newStreak = me.voteStreak || 0;
+                        if (me.lastVoteDate === yesterdayStr) newStreak += 1;
+                        else newStreak = 1;
+
+                        memberUpdates = { lastVoteDate: todayStr, voteStreak: newStreak };
+                        if (newStreak >= 7 && me.gaddariIndex === 0) {
+                            memberUpdates['achievements.trusted'] = true;
+                        }
+                    }
+                }
+
+                if (newStatus === 'confirmed') {
+                    if (category === 'card') {
+                        const targetMember = localMembers.find(m => m.id === event.userId);
+                        const countKey = `${event.type}Count`;
+                        if (targetMember && targetMember[countKey] > 0) {
+                            await updateDoc(doc(db, basePath, 'members', targetMember.id), { [countKey]: targetMember[countKey] - 1 });
+                        }
+                    } else if (category === 'gaddari') {
+                        const targetMember = localMembers.find(m => m.id === event.targetId);
+                        if (targetMember) {
+                            if (targetMember.defenseShields > 0) {
+                                await updateDoc(doc(db, basePath, 'members', targetMember.id), { defenseShields: targetMember.defenseShields - 1 });
+                                await addDoc(collection(db, basePath, 'squad_feed'), { text: `🛡️ SYSTEM: ${targetMember.name} automatically deployed a Defense Shield blocking a Gaddari penalty!`, authorId: 'SYSTEM', timestamp: serverTimestamp(), isSystem: true });
+                            } else {
+                                const newGaddari = Math.min(100, (targetMember.gaddariIndex || 0) + 10);
+                                await updateDoc(doc(db, basePath, 'members', targetMember.id), { gaddariIndex: newGaddari });
+                            }
+                        }
+                    }
+                }
+
+                if (Object.keys(memberUpdates).length > 0) {
+                    await updateDoc(doc(db, basePath, 'members', currentUserId), memberUpdates);
+                }
+
+                await updateDoc(eventRef, { votes: updatedVotes, status: newStatus });
+                showToast("Verdict recorded in Tribunal.", 'success');
+            } catch (err) { console.error(err); showToast("Failed to vote.", 'error'); }
+        };
+
+        window.submitGaddariVote = async () => {
+            const targetId = document.getElementById('gaddarTarget').value;
+            const reason = document.getElementById('gaddarReason').value.trim();
+            const todayStr = getLocalDateStr();
+
+            if (targetId !== 'none' && !reason) { showToast("Evidence mandatory for accusation.", 'warning'); return; }
+
+            try {
+                // Streak Logic
+                const me = localMembers.find(m => m.id === currentUserId);
+                const yesterdayDate = new Date();
+                yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+                const yesterdayStr = `${yesterdayDate.getFullYear()}-${String(yesterdayDate.getMonth()+1).padStart(2,'0')}-${String(yesterdayDate.getDate()).padStart(2,'0')}`;
+
+                let newStreak = me.voteStreak || 0;
+                if (me.lastVoteDate === yesterdayStr) newStreak += 1;
+                else if (me.lastVoteDate !== todayStr) newStreak = 1;
+
+                let memberUpdates = { lastVoteDate: todayStr, voteStreak: newStreak };
+
+                if (newStreak >= 7 && me.gaddariIndex === 0) {
+                    memberUpdates['achievements.trusted'] = true;
+                }
+
+                if (targetId === 'none') {
+                    await addDoc(collection(db, basePath, 'gaddari_votes'), {
+                        date: todayStr, voterId: currentUserId, targetId: 'none',
+                        reason: 'Maintained Peace', timestamp: serverTimestamp(), status: 'peace'
+                    });
+                    showToast("Peace Maintained for the day.", 'success');
+                } else {
+                    await addDoc(collection(db, basePath, 'gaddari_votes'), {
+                        date: todayStr, voterId: currentUserId, targetId: targetId,
+                        reason: reason, timestamp: serverTimestamp(), status: 'pending',
+                        votes: { [currentUserId]: { decision: true, reason: 'Initial Accusation' } }
+                    });
+                    showToast("Accusation filed to Tribunal.", 'success');
+                }
+                
+                await updateDoc(doc(db, basePath, 'members', currentUserId), memberUpdates);
+
+            } catch(err) { showToast("Failed.", 'error'); }
+        };
+
+        window.appealCharge = async (voteId) => {
+            if(!confirm("Submit official appeal to the accuser?")) return;
+            try {
+                await updateDoc(doc(db, basePath, 'gaddari_votes', voteId), { status: 'appealed' });
+                showToast("Appeal submitted to the accuser.", 'success');
+            } catch (err) { showToast("Failed to appeal.", 'error'); }
+        };
+
+        function renderPendingAppeals() {
+            const container = document.getElementById('appealsContainer');
+            const section = document.getElementById('pendingAppealsSection');
+            container.innerHTML = '';
+            
+            const me = localMembers.find(m => m.id === currentUserId);
+            const pendingAppeals = localGaddariVotes.filter(v => v.status === 'appealed' && (me?.isAdmin || v.voterId === currentUserId));
+            
+            if (pendingAppeals.length === 0) { section.classList.add('hidden'); return; }
+            section.classList.remove('hidden');
+            
+            pendingAppeals.forEach(appeal => {
+                const target = localMembers.find(m => m.id === appeal.targetId) || { name: 'Unknown', avatarBase64: '' };
+                const avatarHtml = target.avatarBase64 ? 
+                    `<img src="${target.avatarBase64}" class="w-full h-full object-cover">` : 
+                    `<i data-lucide="user" class="w-3.5 h-3.5"></i>`;
+
+                const div = document.createElement('div');
+                div.className = 'bg-amber-50 dark:bg-amber-950/20 p-3 rounded-xl border border-amber-200 dark:border-amber-500/30 relative overflow-hidden';
+                div.innerHTML = `
+                    <div class="absolute top-0 left-0 w-1 h-full bg-amber-500"></div>
+                    <div class="flex items-center gap-2 mb-2 pl-1">
+                        <div class="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden flex items-center justify-center text-slate-500 border border-amber-300 dark:border-amber-600">${avatarHtml}</div>
+                        <div>
+                            <span class="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-widest leading-none block">${target.name} Appealed!</span>
+                            <span class="text-[8px] text-slate-500">Wants you to rethink the +10%</span>
+                        </div>
+                    </div>
+                    <p class="text-[10px] text-slate-700 dark:text-slate-300 mb-2 pl-1">Your Charge: <span class="italic text-slate-500 dark:text-slate-400">"${appeal.reason}"</span></p>
+                    <div class="flex gap-2 pl-1">
+                        <button onclick="resolveAppeal('${appeal.uid}', '${appeal.targetId}', true)" class="flex-1 bg-emerald-100 dark:bg-emerald-500/10 hover:bg-emerald-200 text-emerald-700 dark:text-emerald-400 py-1.5 rounded-lg text-[9px] font-bold uppercase transition-all flex justify-center items-center gap-1"><i data-lucide="check" class="w-3 h-3"></i> Forgive (-10%)</button>
+                        <button onclick="resolveAppeal('${appeal.uid}', '${appeal.targetId}', false)" class="flex-1 bg-rose-100 dark:bg-rose-500/10 hover:bg-rose-200 text-rose-700 dark:text-rose-400 py-1.5 rounded-lg text-[9px] font-bold uppercase transition-all flex justify-center items-center gap-1"><i data-lucide="x" class="w-3 h-3"></i> Reject</button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        window.resolveAppeal = async (voteId, targetId, isAccepted) => {
+            try {
+                if (isAccepted) {
+                    await updateDoc(doc(db, basePath, 'gaddari_votes', voteId), { status: 'reversed' });
+                    const target = localMembers.find(m => m.id === targetId);
+                    if (target) {
+                        const newIndex = Math.max(0, (target.gaddariIndex || 0) - 10);
+                        await updateDoc(doc(db, basePath, 'members', targetId), { gaddariIndex: newIndex });
+                    }
+                    await updateDoc(doc(db, basePath, 'members', currentUserId), { 'achievements.merciful': true });
+                    showToast("Penalty reversed. Peace restored.", 'success');
+                } else {
+                    await updateDoc(doc(db, basePath, 'gaddari_votes', voteId), { status: 'rejected' });
+                    showToast("Appeal Rejected.", 'info');
+                }
+            } catch (err) { showToast("Failed.", 'error'); }
+        };
+
+        // --- CASE ARCHIVE & ANALYTICS ---
+        window.openAnalyticsModal = () => {
+            try {
+                renderAnalytics();
+                analyticsModal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+                lucide.createIcons();
+            } catch (err) {
+                console.error(err);
+                showToast("Failed to open archive.", "error");
+            }
+        };
+
+        window.closeAnalyticsModal = () => {
+            analyticsModal.classList.add('hidden');
+            document.body.style.overflow = '';
+        };
+
+        function renderAnalytics() {
+            const resolvedCards = localEvents.filter(e => e.status === 'confirmed' || e.status === 'rejected');
+            const resolvedGaddari = localGaddariVotes.filter(v => (v.status === 'confirmed' || v.status === 'rejected' || v.status === 'reversed') && v.targetId !== 'none');
+            const allResolved = [...resolvedCards.map(e => ({...e, category: 'card'})), ...resolvedGaddari.map(v => ({...v, category: 'gaddari'}))]
+                .sort((a,b) => getMillis(b.timestamp) - getMillis(a.timestamp));
+
+            // Stats
+            document.getElementById('statTotalCases').innerText = allResolved.length;
+            
+            const totalSatvik = resolvedCards.filter(e => e.type === 'satvik').length;
+            const approvedSatvik = resolvedCards.filter(e => e.type === 'satvik' && e.status === 'confirmed').length;
+            document.getElementById('statSatvikRate').innerText = totalSatvik ? `${Math.round((approvedSatvik/totalSatvik)*100)}%` : 'N/A';
+
+            const totalGaddari = resolvedGaddari.length;
+            const approvedGaddari = resolvedGaddari.filter(v => v.status === 'confirmed').length;
+            document.getElementById('statGaddariRate').innerText = totalGaddari ? `${Math.round((approvedGaddari/totalGaddari)*100)}%` : 'N/A';
+
+            const autoResolved = allResolved.filter(e => e.isAutoResolved).length;
+            document.getElementById('statAutoResolved').innerText = autoResolved;
+
+            // Heatmap (Last 7 Days)
+            const activityChart = document.getElementById('activityChart');
+            const activityLabels = document.getElementById('activityChartLabels');
+            activityChart.innerHTML = ''; activityLabels.innerHTML = '';
+            
+            let daysData = [];
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date(); d.setDate(d.getDate() - i);
+                daysData.push({ date: d, str: `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`, count: 0 });
+            }
+            
+            const allActivity = [...localEvents, ...localGaddariVotes.filter(v=>v.targetId !== 'none')];
+            allActivity.forEach(a => {
+                const ms = getMillis(a.timestamp);
+                if(ms > 0) {
+                    const tsDate = new Date(ms);
+                    const tsStr = `${tsDate.getFullYear()}-${String(tsDate.getMonth()+1).padStart(2,'0')}-${String(tsDate.getDate()).padStart(2,'0')}`;
+                    const dayObj = daysData.find(d => d.str === tsStr);
+                    if(dayObj) dayObj.count++;
+                }
+            });
+
+            const maxCount = Math.max(...daysData.map(d => d.count), 5);
+            
+            daysData.forEach(d => {
+                const hPercent = (d.count / maxCount) * 100;
+                activityChart.innerHTML += `
+                    <div class="flex-1 flex flex-col justify-end group relative cursor-help">
+                        <div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[9px] py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">${d.count} Cases</div>
+                        <div class="w-full bg-indigo-500 rounded-t-sm transition-all duration-500 hover:bg-indigo-400" style="height: ${hPercent}%"></div>
+                    </div>`;
+                activityLabels.innerHTML += `<div class="flex-1 text-center text-[8px] font-bold text-slate-500 uppercase">${d.date.toLocaleString('default', {weekday: 'short'})}</div>`;
+            });
+
+            // Archive List
+            const listContainer = document.getElementById('archiveListContainer');
+            listContainer.innerHTML = '';
+            if(allResolved.length === 0) {
+                listContainer.innerHTML = `<p class="text-xs text-slate-400 italic">No precedents found.</p>`;
+            } else {
+                allResolved.slice(0, 30).forEach(ev => { // Show last 30
+                    let title = '', target = '', outcomeClass = '', outcomeText = ev.status.toUpperCase();
+                    if(ev.category === 'card') {
+                        title = `${ev.type.toUpperCase()} REQUEST`;
+                        target = getName(ev.userId);
+                        outcomeClass = ev.status === 'confirmed' ? 'text-emerald-500 bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-900/50' : 'text-rose-500 bg-rose-50 dark:bg-rose-950/30 border-rose-200 dark:border-rose-900/50';
+                    } else {
+                        title = `GADDARI ACCUSATION`;
+                        target = getName(ev.targetId);
+                        if(ev.status === 'confirmed') outcomeClass = 'text-rose-500 bg-rose-50 dark:bg-rose-950/30 border-rose-200 dark:border-rose-900/50';
+                        else if(ev.status === 'rejected') outcomeClass = 'text-slate-500 bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800';
+                        else outcomeClass = 'text-amber-500 bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-900/50'; // Reversed
+                    }
+
+                    const ms = getMillis(ev.timestamp);
+                    const dateStr = ms > 0 ? new Date(ms).toLocaleDateString() : 'Just Now';
+
+                    // Parse vote explanations
+                    let votesHtml = '';
+                    if (ev.votes) {
+                        votesHtml = `<div class="mt-2 pt-2 border-t border-slate-100 dark:border-slate-800/60 space-y-1.5"><p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1"><i data-lucide="eye" class="w-3 h-3 inline"></i> Historic Vote Ledger</p>`;
+                        Object.keys(ev.votes).forEach(uid => {
+                            const vObj = ev.votes[uid];
+                            const decision = typeof vObj === 'object' ? vObj.decision : vObj;
+                            const reason = typeof vObj === 'object' && vObj.reason ? vObj.reason : 'No explanation';
+                            votesHtml += `<p class="text-[10px] text-slate-500 dark:text-slate-400 leading-tight"><span class="font-bold ${decision ? 'text-emerald-500' : 'text-rose-500'}">${getName(uid)} (${decision ? 'Approve' : 'Reject'}):</span> "${reason}"</p>`;
+                        });
+                        votesHtml += `</div>`;
+                    }
+
+                    listContainer.innerHTML += `
+                        <div class="p-3 bg-white dark:bg-[#080b18] border border-slate-200 dark:border-slate-800 rounded-lg shadow-sm">
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <span class="text-[9px] font-black text-indigo-600 dark:text-indigo-400 tracking-widest">${title}</span>
+                                    <p class="text-[11px] font-bold text-slate-800 dark:text-slate-200 mt-0.5">Target: ${target}</p>
+                                </div>
+                                <div class="text-right flex flex-col items-end">
+                                    <span class="text-[9px] font-bold px-1.5 py-0.5 rounded border ${outcomeClass}">${outcomeText} ${ev.isAutoResolved ? '(AUTO)' : ''}</span>
+                                    <span class="text-[8px] text-slate-400 mt-1">${dateStr}</span>
+                                </div>
+                            </div>
+                            <p class="text-[10px] text-slate-600 dark:text-slate-400 italic bg-slate-50 dark:bg-slate-900/50 p-1.5 rounded">"${ev.reason}"</p>
+                            ${votesHtml}
+                        </div>`;
+                });
+            }
+        }
+
+        bootup();
+    </script>
+</body>
+</html>
+
+
